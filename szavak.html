@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>Angol Szavak Kvíz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #eef;
+      margin: 2rem;
+    }
+    h1 {
+      text-align: center;
+    }
+    #quiz, #result {
+      max-width: 600px;
+      margin: auto;
+      padding: 1rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #aaa;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: none;
+      background-color: #4477cc;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .option {
+      display: block;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      background: #f4f4f4;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .option:hover {
+      background: #e0e0e0;
+    }
+    .feedback {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Angol Szavak Kvíz</h1>
+
+<div id="quiz">
+  <p id="question"></p>
+  <div id="options"></div>
+  <p class="feedback" id="feedback"></p>
+  <button onclick="nextQuestion()">Következő</button>
+  <button onclick="endQuiz()">Befejezem</button>
+</div>
+
+<div id="result" style="display:none;"></div>
+
+<script>
+const questions =[
+
+{"hu": "ház", "options": ["house", "brother", "book"], "correct": 0},
+{"hu": "alma", "options": ["apple", "snow", "blue"], "correct": 0},
+{"hu": "könyv", "options": ["woman", "green", "book"], "correct": 2},
+{"hu": "fontos", "options": ["boring", "important", "short"], "correct": 1},
+{"hu": "emlékezni", "options": ["forget", "remember", "change"], "correct": 1},
+{"hu": "könnyű", "options": ["easy", "hard", "warm"], "correct": 0},
+{"hu": "mindig", "options": ["never", "always", "often"], "correct": 1},
+{"hu": "szüksége van valamire", "options": ["help", "bring", "need"], "correct": 2},
+{"hu": "macska", "options": ["fire", "banana", "cat"], "correct": 2},
+{"hu": "iskola", "options": ["child", "school", "chair"], "correct": 1},
+{"hu": "könyv", "options": ["star", "book", "queen"], "correct": 1},
+{"hu": "reggelizni", "options": ["have breakfast", "go to bed", "make lunch"], "correct": 0},
+{"hu": "késésben van", "options": ["on time", "in a hurry", "late"], "correct": 2},
+{"hu": "bevásárolni menni", "options": ["go shopping", "watch TV", "go swimming"], "correct": 0},
+{"hu": "házi feladatot csinálni", "options": ["do homework", "make the bed", "play football"], "correct": 0},
+{"hu": "felkelni (reggel)", "options": ["wake up", "get off", "stand up"], "correct": 0},
+{"hu": "ebédelni", "options": ["have lunch", "take a walk", "watch a film"], "correct": 0},
+{"hu": "buszra szállni", "options": ["get on the bus", "get off the bus", "miss the bus"], "correct": 0},
+{"hu": "bevásárló lista", "options": ["shopping bag", "shopping list", "shopping cart"], "correct": 1},
+{"hu": "fogat mosni", "options": ["wash hands", "brush teeth", "wash face"], "correct": 1},
+{"hu": "időjárás jelentés", "options": ["weather forecast", "weather change", "weather map"], "correct": 0},
+{"hu": "ebédelni", "options": ["have lunch", "take a walk", "watch a film"], "correct": 0, "example": "We usually have lunch at noon."},
+{"hu": "buszra szállni", "options": ["get on the bus", "get off the bus", "miss the bus"], "correct": 0, "example": "She gets on the bus every morning."},
+{"hu": "bevásárló lista", "options": ["shopping bag", "shopping list", "shopping cart"], "correct": 1, "example": "Don’t forget your shopping list."},
+{"hu": "fogat mosni", "options": ["wash hands", "brush teeth", "wash face"], "correct": 1, "example": "I brush my teeth twice a day."},
+{"hu": "időjárás jelentés", "options": ["weather forecast", "weather change", "weather map"], "correct": 0, "example": "The weather forecast says it will rain tomorrow."},
+{"hu": "bevásárolni menni", "options": ["go shopping", "go running", "go swimming"], "correct": 0, "example": "We go shopping every Saturday."},
+{"hu": "szemetet kivinni", "options": ["take out the trash", "clean the table", "wash the dishes"], "correct": 0, "example": "Please take out the trash before dinner."},
+{"hu": "postára menni", "options": ["go to the bank", "go to the post office", "go to the store"], "correct": 1, "example": "I have to go to the post office to send a letter."},
+{"hu": "ágyat bevetni", "options": ["make the bed", "sit on the bed", "clean the room"], "correct": 0, "example": "I always make the bed in the morning."},
+{"hu": "levél (postai)", "options": ["email", "letter", "package"], "correct": 1, "example": "She wrote a letter to her friend."},
+{"hu": "vonatra szállni", "options": ["get on the train", "get off the train", "miss the train"], "correct": 0, "example": "We get on the train at platform three."},
+{"hu": "számlát fizetni", "options": ["pay the bill", "write a bill", "lose the bill"], "correct": 0, "example": "I need to pay the bill for the electricity."},
+{"hu": "kutyát sétáltatni", "options": ["walk the dog", "feed the dog", "wash the dog"], "correct": 0, "example": "She walks the dog every evening."},
+{"hu": "ebédet főzni", "options": ["cook lunch", "eat lunch", "order lunch"], "correct": 0, "example": "I will cook lunch for my family today."},
+{"hu": "könyvtárba menni", "options": ["go to the cinema", "go to the library", "go to the park"], "correct": 1, "example": "They go to the library to study."},
+{"hu": "reggel felkelni", "options": ["wake up in the morning", "go to bed", "take a nap"], "correct": 0, "example": "I wake up in the morning at 7 o’clock."},
+{"hu": "levelet írni", "options": ["write a letter", "send a package", "read a book"], "correct": 0, "example": "She writes a letter to her grandmother."},
+{"hu": "vízforralót használni", "options": ["use the kettle", "cook the dinner", "wash the dishes"], "correct": 0, "example": "I use the kettle to make tea."},
+{"hu": "ruhát felvenni", "options": ["put on clothes", "take off shoes", "wash clothes"], "correct": 0, "example": "He puts on clothes before going out."},
+
+{"hu": "vacsorázni", "options": ["have dinner", "make breakfast", "drink water"], "correct": 0},
+{"hu": "autót vezetni", "options": ["drive a car", "ride a bike", "take a bus"], "correct": 0},
+{"hu": "tévét nézni", "options": ["watch TV", "read a book", "play football"], "correct": 0},
+{"hu": "boltba menni", "options": ["go to the shop", "go to school", "go to work"], "correct": 0},
+{"hu": "barátot hívni", "options": ["call a friend", "meet a teacher", "write a letter"], "correct": 0},
+{"hu": "pénzt keresni", "options": ["earn money", "spend money", "lose money"], "correct": 0},
+{"hu": "asztalt megteríteni", "options": ["set the table", "clean the table", "sit at the table"], "correct": 0},
+{"hu": "számítógépet használni", "options": ["use the computer", "play the piano", "open the door"], "correct": 0},
+{"hu": "kutyát etetni", "options": ["feed the dog", "walk the dog", "wash the dog"], "correct": 0},
+{"hu": "fát ültetni", "options": ["plant a tree", "cut a tree", "climb a tree"], "correct": 0},
+
+{"hu": "biciklizni", "options": ["ride a bike", "drive a car", "run fast"], "correct": 0, "example": "I ride a bike to school."},
+{"hu": "úszni menni", "options": ["go swimming", "go running", "go shopping"], "correct": 0, "example": "We go swimming in the lake."},
+{"hu": "postára menni", "options": ["go to the post office", "go to the bank", "go to the shop"], "correct": 0, "example": "She goes to the post office every morning."},
+{"hu": "hangszeren játszani", "options": ["play an instrument", "listen to music", "write a song"], "correct": 0, "example": "He plays an instrument very well."},
+{"hu": "képet rajzolni", "options": ["draw a picture", "paint the wall", "take a photo"], "correct": 0, "example": "The child draws a picture in art class."},
+{"hu": "cipőt felvenni", "options": ["put on shoes", "take off shoes", "clean shoes"], "correct": 0, "example": "I put on shoes before I go out."},
+{"hu": "ágyat bevetni", "options": ["make the bed", "clean the bed", "sleep in the bed"], "correct": 0, "example": "I make the bed every morning."},
+{"hu": "szemetet kivinni", "options": ["take out the trash", "pick up the trash", "burn the trash"], "correct": 0, "example": "He takes out the trash in the evening."},
+{"hu": "fogorvoshoz menni", "options": ["go to the dentist", "go to the doctor", "go to the teacher"], "correct": 0, "example": "She goes to the dentist twice a year."},
+{"hu": "vonattal utazni", "options": ["travel by train", "travel by bus", "travel by car"], "correct": 0, "example": "We often travel by train to Budapest."},
+{"hu": "telefont tölteni", "options": ["charge the phone", "call a friend", "send a message"], "correct": 0, "example": "I need to charge the phone before leaving."},
+];
+
+function speak(text) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "en-US"; // angol kiejtés
+  speechSynthesis.speak(utterance);
+}
+
+// Véletlenszerű sorrend...
+let shuffled = [...questions];
+while (shuffled.length < 10000) {
+  const base = questions[shuffled.length % questions.length];
+  shuffled.push({ ...base });
+}
+shuffled = shuffled.sort(() => Math.random() - 0.5);
+
+let current = 0;
+let score = 0;
+let shown = 0;
+
+function showQuestion() {
+  document.getElementById('feedback').textContent = "";
+  const q = shuffled[current];
+  document.getElementById('question').textContent = `${current + 1}. ${q.hu}`;
+  const opts = q.options.map((opt, i) =>
+    `<div class="option" onclick="checkAnswer(${i}); speak('${opt}')">${opt}</div>`
+  ).join('');
+  document.getElementById('options').innerHTML = opts;
+}
+
+function checkAnswer(i) {
+  const q = shuffled[current];
+  const feedback = document.getElementById('feedback');
+  if (i === q.correct) {
+    score++;
+    feedback.textContent = "✔️ Helyes!";
+    feedback.style.color = "green";
+  } else {
+    feedback.textContent = `❌ Helytelen! A helyes válasz: ${q.options[q.correct]}`;
+    feedback.style.color = "red";
+  }
+  shown++;
+  document.querySelectorAll('.option').forEach(el => el.onclick = null);
+}
+
+function nextQuestion() {
+  current++;
+  if (current < shuffled.length) {
+    showQuestion();
+  } else {
+    endQuiz();
+  }
+}
+
+function endQuiz() {
+  document.getElementById('quiz').style.display = 'none';
+  let resultText = "";
+  if (shown > 0) {
+    const percent = Math.round((score / shown) * 100);
+    resultText = `
+      <h2>Eredmény</h2>
+      <p>Helyes válaszok: ${score} / ${shown}</p>
+      <p>Teljesítmény: ${percent}%</p>
+    `;
+  } else {
+    resultText = "<p>Nem válaszoltál egyetlen kérdésre sem.</p>";
+  }
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('result').innerHTML = resultText;
+}
+
+showQuestion();
+</script>
+
+</body>
+</html>
