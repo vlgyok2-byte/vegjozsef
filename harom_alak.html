@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<title>Angol igék gyakorló</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; margin: 24px; background:#f5f7fa; color:#222; }
+  h2 { margin-bottom: 12px; }
+  .card { background:#fff; padding:18px; border-radius:10px; box-shadow: 0 6px 18px rgba(40,40,60,0.06); max-width:820px; }
+  table { width:100%; border-collapse: collapse; margin-bottom:14px; }
+  th, td { padding:10px; text-align:center; border:1px solid #e6e9ef; }
+  th { background:linear-gradient(#4caf50,#3da04a); color:#fff; font-weight:600; }
+  input {
+    width:160px; padding:8px 10px; border-radius:8px; border:1px solid #ccd3df;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.03); text-align:center; font-size:14px;
+  }
+  input:disabled { background:#f0f2f5; color:#333; }
+  .controls { margin-bottom:12px; }
+  button {
+    margin-right:8px; margin-top:6px;
+    padding:9px 14px; border-radius:8px; border:none; background:#4caf50; color:#fff;
+    cursor:pointer; font-size:14px; box-shadow: 0 4px 10px rgba(76,175,80,0.12);
+  }
+  button.secondary { background:#6c7a89; }
+  button.danger { background:#d9534f; }
+  button:hover { transform: translateY(-1px); }
+  .correct { background: #dff0d8 !important; } /* világos zöld */
+  .wrong { background: #ffd6d6 !important; }   /* világos piros */
+  #result { margin-top:12px; padding:12px; background:#fff; border-radius:8px; border:1px solid #e6e9ef; display:inline-block; }
+  .small { font-size:13px; color:#555; margin-top:8px; }
+  @media (max-width:640px){
+    input{ width:100px; }
+    table, th, td { font-size:13px; }
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>Angol igék gyakorló</h2>
+
+  <table>
+    <tr>
+      <th>Infinitive (V1)</th>
+      <th>Simple Past (V2)</th>
+      <th>Past Participle (V3)</th>
+      <th>Magyar jelentés</th>
+    </tr>
+    <tr>
+      <td>
+        <input id="v1" autocomplete="off"><div id="v1hint" class="small"></div>
+      </td>
+      <td>
+        <input id="v2" autocomplete="off"><div id="v2hint" class="small"></div>
+      </td>
+      <td>
+        <input id="v3" autocomplete="off"><div id="v3hint" class="small"></div>
+      </td>
+      <td id="hu" style="font-weight:600; text-align:center;"></td>
+    </tr>
+  </table>
+
+  <div class="controls">
+    <button onclick="nextQuestion()">Következő</button>
+    <button onclick="checkAnswer()">Kérdés eredménye</button>
+    <button onclick="finishTest()" class="secondary">Befejezés</button>
+    <button onclick="restartTest()" class="danger">Újra kezdés</button>
+  </div>
+
+  <div id="result" aria-live="polite"></div>
+  <div class="small">Megjegyzés: a hibás mezők pirosak maradnak és automatikusan átíródnak a helyes alakra.</div>
+</div>
+
+<script>
+/* Lista: rendhagyó + nem rendhagyó igék keverve */
+const verbs = [
+  {v1:"go", v2:"went", v3:"gone", hu:"menni"},
+  {v1:"eat", v2:"ate", v3:"eaten", hu:"enni"},
+  {v1:"begin", v2:"began", v3:"begun", hu:"elkezdeni"},
+  {v1:"see", v2:"saw", v3:"seen", hu:"látni"},
+  {v1:"write", v2:"wrote", v3:"written", hu:"írni"},
+  {v1:"read", v2:"read", v3:"read", hu:"olvasni"},
+{v1:"arise", v2:"arose", v3:"arisen", hu:"felkel, keletkezik"},
+{v1:"awake", v2:"awoke", v3:"awoken", hu:"felébred"},
+{v1:"be", v2:"was/were", v3:"been", hu:"lenni"},
+{v1:"bear", v2:"bore", v3:"borne/born", hu:"elvisel, szül"},
+{v1:"beat", v2:"beat", v3:"beaten", hu:"üt, megver"},
+{v1:"become", v2:"became", v3:"become", hu:"válik valamivé"},
+{v1:"bend", v2:"bent", v3:"bent", hu:"hajlít"},
+{v1:"bet", v2:"bet", v3:"bet", hu:"fogad"},
+{v1:"bid", v2:"bid", v3:"bid", hu:"ajánlatot tesz"},
+{v1:"bind", v2:"bound", v3:"bound", hu:"köt, összeköt"},
+{v1:"bite", v2:"bit", v3:"bitten", hu:"harap"},
+{v1:"bleed", v2:"bled", v3:"bled", hu:"vérzik"},
+{v1:"blow", v2:"blew", v3:"blown", hu:"fúj"},
+{v1:"break", v2:"broke", v3:"broken", hu:"eltör"},
+{v1:"breed", v2:"bred", v3:"bred", hu:"tenyészt"},
+{v1:"bring", v2:"brought", v3:"brought", hu:"hoz"},
+{v1:"broadcast", v2:"broadcast", v3:"broadcast", hu:"sugároz"},
+{v1:"build", v2:"built", v3:"built", hu:"épít"},
+{v1:"burn", v2:"burnt/burned", v3:"burnt/burned", hu:"ég, éget"},
+{v1:"burst", v2:"burst", v3:"burst", hu:"felrobban"},
+{v1:"buy", v2:"bought", v3:"bought", hu:"vesz"},
+{v1:"catch", v2:"caught", v3:"caught", hu:"elkap"},
+{v1:"choose", v2:"chose", v3:"chosen", hu:"választ"},
+{v1:"cling", v2:"clung", v3:"clung", hu:"ragaszkodik"},
+{v1:"come", v2:"came", v3:"come", hu:"jön"},
+{v1:"cost", v2:"cost", v3:"cost", hu:"kerül vmibe"},
+{v1:"creep", v2:"crept", v3:"crept", hu:"kúszik"},
+{v1:"cut", v2:"cut", v3:"cut", hu:"vág"},
+{v1:"deal", v2:"dealt", v3:"dealt", hu:"foglalkozik vmivel"},
+{v1:"dig", v2:"dug", v3:"dug", hu:"ás"},
+{v1:"do", v2:"did", v3:"done", hu:"csinál"},
+{v1:"draw", v2:"drew", v3:"drawn", hu:"rajzol, húz"},
+{v1:"dream", v2:"dreamt/dreamed", v3:"dreamt/dreamed", hu:"álmodik"},
+{v1:"drink", v2:"drank", v3:"drunk", hu:"iszik"},
+{v1:"drive", v2:"drove", v3:"driven", hu:"vezet"},
+{v1:"fall", v2:"fell", v3:"fallen", hu:"esik"},
+{v1:"feed", v2:"fed", v3:"fed", hu:"etet"},
+{v1:"feel", v2:"felt", v3:"felt", hu:"érez"},
+{v1:"fight", v2:"fought", v3:"fought", hu:"harcol"},
+{v1:"find", v2:"found", v3:"found", hu:"talál"},
+{v1:"flee", v2:"fled", v3:"fled", hu:"menekül"},
+{v1:"fly", v2:"flew", v3:"flown", hu:"repül"},
+{v1:"forbid", v2:"forbade", v3:"forbidden", hu:"megtilt"},
+{v1:"forget", v2:"forgot", v3:"forgotten", hu:"elfelejt"},
+{v1:"forgive", v2:"forgave", v3:"forgiven", hu:"megbocsát"},
+{v1:"freeze", v2:"froze", v3:"frozen", hu:"megfagy"},
+{v1:"get", v2:"got", v3:"got/gotten", hu:"kap"},
+{v1:"grind", v2:"ground", v3:"ground", hu:"őröl"},
+{v1:"grow", v2:"grew", v3:"grown", hu:"nő"},
+{v1:"hang", v2:"hung/hanged", v3:"hung/hanged", hu:"akaszt, lóg"},
+  {v1:"run", v2:"ran", v3:"run", hu:"futni"},
+  {v1:"take", v2:"took", v3:"taken", hu:"venni"},
+  {v1:"give", v2:"gave", v3:"given", hu:"adni"},
+  {v1:"buy", v2:"bought", v3:"bought", hu:"vásárolni"},
+  {v1:"walk", v2:"walked", v3:"walked", hu:"sétálni"},
+  {v1:"play", v2:"played", v3:"played", hu:"játszani"},
+  {v1:"help", v2:"helped", v3:"helped", hu:"segíteni"},
+  {v1:"call", v2:"called", v3:"called", hu:"hívni / telefonálni"},
+  {v1:"live", v2:"lived", v3:"lived", hu:"lakni"},
+  {v1:"work", v2:"worked", v3:"worked", hu:"dolgozni"},
+  {v1:"watch", v2:"watched", v3:"watched", hu:"nézni"},
+  {v1:"look", v2:"looked", v3:"looked", hu:"nézni / kinézni"},
+  {v1:"open", v2:"opened", v3:"opened", hu:"kinyitni"},
+  {v1:"clean", v2:"cleaned", v3:"cleaned", hu:"takarítani"}
+];
+
+let currentQuestion = null;
+let questionNumber = 0;
+let correctBoth = 0;
+let partialCorrect = 0;
+let questionAnswered = false; // hogy ne számolja újra ugyanazt a kérdést többször
+
+function shuffleArray(a){
+  return a.sort(() => Math.random() - 0.5);
+}
+
+function nextQuestion(){
+  // új véletlen ige
+  const pool = shuffleArray(verbs.slice());
+  currentQuestion = pool[0];
+  questionNumber++;
+  questionAnswered = false;
+
+  // magyar jelentés mindig adott
+  document.getElementById("hu").innerText = currentQuestion.hu;
+
+  // a 3 angol mezőből véletlenszerűen kettőt kitöltendővé választunk
+  const fields = ["v1","v2","v3"];
+  const emptyFields = shuffleArray(fields).slice(0,2);
+  const givenField = fields.find(f => !emptyFields.includes(f));
+
+  // beállítjuk az értékeket és engedélyezzük / tiltjuk a mezőket
+  fields.forEach(f=>{
+    const el = document.getElementById(f);
+    el.className = "";
+    el.value = (f === givenField) ? currentQuestion[f] : "";
+    el.disabled = (f === givenField);
+    document.getElementById(f+"hint").innerText = "";
+  });
+
+  // töröljük az eredmény mezőt
+  document.getElementById("result").innerHTML = "";
+}
+
+function checkAnswer(){
+  if(!currentQuestion){
+    document.getElementById("result").innerText = "Nincs aktív kérdés. Nyomj Következő-t.";
+    return;
+  }
+
+  // ha már egyszer ellenőrizted ezt a kérdést, ne számolja újra a statisztikát
+  if(questionAnswered){
+    document.getElementById("result").innerHTML = `<b>Kérdés sorszáma:</b> ${questionNumber}<br>
+      <b>Teljesen helyesen:</b> ${correctBoth}<br>
+      <b>Részben helyesen:</b> ${partialCorrect}<br>
+      <div class="small">Ez a kérdés már ellenőrizve volt.</div>`;
+    return;
+  }
+
+  const fields = ["v1","v2","v3"];
+  const required = fields.filter(f => !document.getElementById(f).disabled);
+  let localCorrect = 0;
+
+  required.forEach(f=>{
+    const el = document.getElementById(f);
+    const userVal = (el.value||"").trim().toLowerCase();
+    const correctVal = currentQuestion[f].toLowerCase();
+
+    if(userVal === correctVal){
+      // helyes — zöld, letiltjuk, megtartjuk a helyes értéket
+      el.className = "correct";
+      el.value = currentQuestion[f]; // biztosítjuk a formátumot (kis/nagybetű)
+      el.disabled = true;
+      localCorrect++;
+    } else {
+      // hibás — piros marad, automatikusan átírjuk a helyesre és letiltjuk
+      el.className = "wrong";
+      el.value = currentQuestion[f];
+      el.disabled = true;
+    }
+  });
+
+  // statisztika: ha mindkét kitöltendő helyes → teljesen helyes,
+  // ha pontosan egyik jó, másik rossz → részben helyes
+  if(localCorrect === required.length) correctBoth++;
+  else if(localCorrect > 0) partialCorrect++;
+
+  questionAnswered = true;
+
+  document.getElementById("result").innerHTML = `
+    <b>Kérdés sorszáma:</b> ${questionNumber}<br>
+    <b>Teljesen helyesen:</b> ${correctBoth}<br>
+    <b>Részben helyesen (egy jó, egy rossz):</b> ${partialCorrect}
+  `;
+}
+
+function finishTest(){
+  const total = questionNumber;
+  const percent = total ? Math.round((correctBoth / total) * 100) : 0;
+  document.getElementById("result").innerHTML = `
+    <b>Összesített eredmény:</b> ${percent}%<br>
+    Teljesen helyesen: ${correctBoth}<br>
+    Részben helyesen: ${partialCorrect}<br>
+    Összes feladat: ${total}
+  `;
+}
+
+function restartTest(){
+  currentQuestion = null;
+  questionNumber = 0;
+  correctBoth = 0;
+  partialCorrect = 0;
+  questionAnswered = false;
+  ["v1","v2","v3"].forEach(f=>{
+    const el = document.getElementById(f);
+    el.value = "";
+    el.disabled = false;
+    el.className = "";
+    document.getElementById(f+"hint").innerText = "";
+  });
+  document.getElementById("hu").innerText = "";
+  document.getElementById("result").innerHTML = "";
+}
+
+// ---- indítás: az oldal betöltődésekor azonnal kérdésre ugrik ----
+document.addEventListener('DOMContentLoaded', () => nextQuestion());
+</script>
+</body>
+</html>
