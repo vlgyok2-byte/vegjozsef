@@ -1,33 +1,93 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
-
+<!DOCTYPE html>
+<html lang="hu">
 <head>
-<meta http-equiv="Content-Language" content="hu" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Angol nyelv gyakorlása</title>
-<style type="text/css">
-.style1 {
-	text-align: center;
-	color: #CC6699;
-}
-a {
-	color: #CC6699;
-}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background: #f7f8fc;
+        margin: 0;
+        padding: 0;
+        color: #333;
+    }
+
+    header {
+        background: #4a90e2;
+        color: white;
+        text-align: center;
+        padding: 40px 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+        font-size: 2.5em;
+        margin: 0;
+    }
+
+    nav {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin: 40px 0;
+    }
+
+    nav a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: white;
+        padding: 15px 25px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #4a90e2;
+        font-size: 1.2em;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    nav a:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+
+    nav a i {
+        font-size: 1.5em;
+    }
+
+    footer {
+        text-align: center;
+        padding: 20px;
+        font-size: 0.9em;
+        color: #777;
+    }
+
+    @media (max-width: 600px) {
+        nav {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
 </style>
 </head>
+<body>
 
-<body style="background-color: #800000" bgcolor="#CC6699">
+<header>
+    <h1>Angol nyelv gyakorlása</h1>
+</header>
 
-<h1 class="style1">Angol nyelv gyakorlása</h1>
-<br />
-<br />
-<h2>
-<a href="szavak.html">Szavak gyakorlása</a><br />
-<br />
-<a href="mennyiségek.html">Mennyiségek</a></h2>
-<h2>
-<a href="harom_alak.html">Igék három alakja</a></h2>
+<nav>
+    <a href="szavak.html"><i class="fas fa-book"></i>Szavak gyakorlása</a>
+    <a href="mennyiségek.html"><i class="fas fa-balance-scale"></i>Mennyiségek</a>
+    <a href="harom_alak.html"><i class="fas fa-pencil-alt"></i>Igék három alakja</a>
+</nav>
+
+<footer>
+    &copy; 2025 Angol nyelv gyakorlása
+</footer>
 
 </body>
-
 </html>
