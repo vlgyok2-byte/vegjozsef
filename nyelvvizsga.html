@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<title>Angol alapfok teszt</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; background: #f5f7fa; color: #222; }
+  h1 { text-align: center; }
+  .question { margin: 15px 0; padding: 10px; border-radius: 8px; background: #fff; box-shadow: 0 0 4px rgba(0,0,0,0.1);}
+  .options label { display: block; margin: 5px 0; }
+  button { margin: 15px 5px; padding: 10px 15px; border: none; border-radius: 8px; background: #007bff; color: #fff; cursor: pointer; }
+  button:hover { background: #0056b3; }
+  #result { font-size: 18px; font-weight: bold; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<h1>Angol alapfok teszt</h1>
+<div id="quiz"></div>
+<button onclick="submitQuiz()">Ellenőrzés</button>
+<button onclick="restartQuiz()">Újrakezdés</button>
+<div id="result"></div>
+
+<script src="questions.js"></script>
+<script>
+function getRandomQuestions(arr, num) {
+  return arr.sort(() => 0.5 - Math.random()).slice(0, num);
+}
+
+let questions = [];
+function loadQuiz() {
+  questions = getRandomQuestions(allQuestions, 20); // egyszerre 20 kérdés
+  const quizDiv = document.getElementById("quiz");
+  quizDiv.innerHTML = "";
+  questions.forEach((q, i) => {
+    let html = `<div class="question"><p><b>${i+1}. ${q.q}</b></p>`;
+    q.options.forEach((opt, j) => {
+      html += `<label><input type="radio" name="q${i}" value="${j}"> ${opt}</label>`;
+    });
+    html += "</div>";
+    quizDiv.innerHTML += html;
+  });
+  document.getElementById("result").innerHTML = "";
+}
+loadQuiz();
+
+function submitQuiz() {
+  let score = 0;
+  questions.forEach((q, i) => {
+    const answer = document.querySelector(`input[name="q${i}"]:checked`);
+    if (answer && parseInt(answer.value) === q.correct) {
+      score++;
+    }
+  });
+  const percent = Math.round((score / questions.length) * 100);
+  document.getElementById("result").innerHTML =
+    `Eredmény: ${score} / ${questions.length} (${percent}%)`;
+}
+
+function restartQuiz() {
+  loadQuiz();
+}
+</script>
+
+</body>
+</html>
