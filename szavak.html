@@ -45,6 +45,25 @@
       margin-top: 1rem;
       font-weight: bold;
     }
+
+    /* Fix pozíciójú főoldal gomb */
+    .home-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 50px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      text-decoration: none;
+    }
+    .home-button:hover {
+      background: #1e7e34;
+    }
   </style>
 </head>
 <body>
@@ -61,9 +80,14 @@
 
 <div id="result" style="display:none;"></div>
 
+<!-- Főoldal gomb -->
+<a href="index.html" class="home-button">🏠 Főoldal</a>
+
 <script>
 const questions =[
-
+// ... a kérdéslista változatlan marad ...
+{"hu": "ház", "options": ["house", "brother", "book"], "correct": 0},
+{"hu": "alma", "options": ["apple", "snow", "blue"], "correct": 0},
 {"hu": "ház", "options": ["house", "brother", "book"], "correct": 0},
 {"hu": "alma", "options": ["apple", "snow", "blue"], "correct": 0},
 {"hu": "könyv", "options": ["woman", "green", "book"], "correct": 2},
@@ -115,7 +139,6 @@ const questions =[
 {"hu": "számítógépet használni", "options": ["use the computer", "play the piano", "open the door"], "correct": 0},
 {"hu": "kutyát etetni", "options": ["feed the dog", "walk the dog", "wash the dog"], "correct": 0},
 {"hu": "fát ültetni", "options": ["plant a tree", "cut a tree", "climb a tree"], "correct": 0},
-
 {"hu": "biciklizni", "options": ["ride a bike", "drive a car", "run fast"], "correct": 0, "example": "I ride a bike to school."},
 {"hu": "úszni menni", "options": ["go swimming", "go running", "go shopping"], "correct": 0, "example": "We go swimming in the lake."},
 {"hu": "postára menni", "options": ["go to the post office", "go to the bank", "go to the shop"], "correct": 0, "example": "She goes to the post office every morning."},
@@ -127,15 +150,20 @@ const questions =[
 {"hu": "fogorvoshoz menni", "options": ["go to the dentist", "go to the doctor", "go to the teacher"], "correct": 0, "example": "She goes to the dentist twice a year."},
 {"hu": "vonattal utazni", "options": ["travel by train", "travel by bus", "travel by car"], "correct": 0, "example": "We often travel by train to Budapest."},
 {"hu": "telefont tölteni", "options": ["charge the phone", "call a friend", "send a message"], "correct": 0, "example": "I need to charge the phone before leaving."},
+
+
+
+
+
+// (többi kérdés marad változatlanul)
 ];
 
 function speak(text) {
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "en-US"; // angol kiejtés
+  utterance.lang = "en-US"; 
   speechSynthesis.speak(utterance);
 }
 
-// Véletlenszerű sorrend...
 let shuffled = [...questions];
 while (shuffled.length < 10000) {
   const base = questions[shuffled.length % questions.length];
