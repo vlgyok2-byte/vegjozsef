@@ -5,6 +5,41 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Mennyiségi kifejezések – much, many, some, any (teljes, bővített)</title>
 <style>
+
+
+    body { ... }
+    h1 { ... }
+    /* ide jön a home-btn css */
+    .home-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      z-index: 9999;
+      transition: background 0.2s;
+    }
+    .home-btn:hover {
+      background: #218838;
+    }
+    .home-btn img {
+      width: 20px;
+      height: 20px;
+    }
+
+
+
+
   :root{
     --bg:#f7f9fc; --card:#fff; --accent:#2f80ed;
     --ok-bg:#e6f4ea; --ok-color:#155724;
@@ -402,6 +437,11 @@ checkBtn.addEventListener('click', ()=>{
 /* első betöltés */
 renderQuiz(Number(numQSel.value) || 10);
 </script>
+
+<a href="index.html" class="home-btn">
+  <img src="https://img.icons8.com/emoji/48/000000/house-emoji.png" alt="Home" />
+  Főoldal
+</a>
 
 </body>
 </html>
