@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Mennyiségi kifejezések – much, many, some, any (teljes, bővített)</title>
+<style>
+  :root{
+    --bg:#f7f9fc; --card:#fff; --accent:#2f80ed;
+    --ok-bg:#e6f4ea; --ok-color:#155724;
+    --bad-bg:#fdecea; --bad-color:#8a1f1f;
+    --skip-bg:#fff8e6; --skip-color:#8a6a00;
+    --muted:#6b7b86;
+    --table-border:#d6e6ee;
+  }
+  html,body{height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;color:#21333b}
+  .table-container{
+    position:fixed; top:0; left:0; right:0;
+    background:var(--card); border-bottom:2px solid var(--table-border);
+    z-index:100; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,.06);
+    max-height:520px; overflow:auto;
+  }
+  .wrap{max-width:1100px;margin:20px auto;padding:20px}
+  h1{margin:0 0 8px;text-align:center;color:#0f2b3d}
+  table{width:100%;border-collapse:collapse;margin-top:8px}
+  th,td{border:1px solid var(--table-border);padding:8px;text-align:center;font-size:14px;vertical-align:top}
+  th{background:#d9edf7}
+  .some{color:green;font-weight:700}
+  .any{color:blue;font-weight:700}
+  .much,.many{color:darkorange;font-weight:700}
+  .alot{color:purple;font-weight:700}
+  .few{color:#c62828;font-weight:700}
+  .a_few{color:#2a7f62;font-weight:700}
+  .little{color:#c62828;font-weight:700}
+  .a_little{color:#2a7f62;font-weight:700}
+  /* main content pushed below fixed table */
+  .content{margin-top:560px;padding:20px;max-width:1100px;margin-left:auto;margin-right:auto}
+  .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  select,button{font-size:15px;padding:8px 10px;border-radius:7px;border:1px solid #d6e0ea;background:#fff}
+  button.primary{background:var(--accent);color:#fff;border:none;cursor:pointer}
+  button.ghost{background:#f6f9fc;border:1px solid #d6e0ea;cursor:pointer}
+  .quiz{background:#f0f8ff;padding:15px;border-radius:8px}
+  .hint{font-size:13px;color:var(--muted);margin-top:6px}
+  .expl{font-size:13px;margin-top:6px;padding:8px;border-radius:6px}
+  .row-feedback.ok{background:var(--ok-bg);color:var(--ok-color);padding:8px;border-radius:6px;margin:6px 0}
+  .row-feedback.bad{background:var(--bad-bg);color:var(--bad-color);padding:8px;border-radius:6px;margin:6px 0}
+  .row-feedback.skp{background:var(--skip-bg);color:var(--skip-color);padding:8px;border-radius:6px;margin:6px 0}
+  .tag{font-size:14px;color:#465a6b}
+  .q p{margin:6px 0}
+  .q select{min-width:220px}
+  .legend{font-size:13px;color:var(--muted);margin-top:8px}
+  #result{margin-top:12px}
+  footer{margin-top:18px;text-align:center;color:#7a8893;font-size:13px}
+  @media (max-width:700px){ .content{margin-top:620px} .q select{min-width:140px} td,th {font-size:13px} }
+</style>
+</head>
+<body>
+
+<div class="table-container" role="region" aria-label="Táblázat: Mennyiségi kifejezések">
+  <h1>Mennyiségi kifejezések: much, many, some, any — részletes</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Kategória</th>
+        <th>Állító (pozitív)</th>
+        <th>Tagadó (példa)</th>
+        <th>Kérdő (példa)</th>
+        <th>Megjegyzés / árnyalat</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>Megszámlálható (többes szám)</b></td>
+        <td>
+          <span class="some">some</span> — I have <span class="some">some</span> friends.<br>
+          <span class="alot">a lot of</span> — I have <span class="alot">a lot of</span> books.<br>
+          <span class="a_few">a few</span> — I have <span class="a_few">a few</span> questions.
+        </td>
+        <td>
+          not <span class="many">many</span> — I don't have <span class="many">many</span> friends.
+        </td>
+        <td>
+          <span class="any">any</span> — Do you have <span class="any">any</span> friends?<br>
+          <span class="many">many</span> — Are there <span class="many">many</span> books?
+        </td>
+        <td style="text-align:left">
+          <strong>Példa:</strong> <em>Megszámlálható pozitív</em> → <strong>some / a lot of / a few</strong>.<br>
+          <span class="legend">Megjegyzés: <strong>a few</strong> = "van néhány" (pozitív), <strong>few</strong> = "kevés" (negatívabb).</span>
+        </td>
+      </tr>
+
+      <tr>
+        <td><b>Nem megszámlálható</b></td>
+        <td>
+          <span class="some">some</span> — I need <span class="some">some</span> water.<br>
+          <span class="alot">a lot of</span> — She has <span class="alot">a lot of</span> money.<br>
+          <span class="a_little">a little</span> — I have <span class="a_little">a little</span> time.
+        </td>
+        <td>
+          not <span class="much">much</span> — There isn't <span class="much">much</span> sugar.
+        </td>
+        <td>
+          <span class="any">any</span> — Do you have <span class="any">any</span> milk?<br>
+          <span class="much">much</span> — Is there <span class="much">much</span> water?
+        </td>
+        <td style="text-align:left">
+          <strong>Példa:</strong> <em>Nem megszámlálható pozitív</em> → <strong>some / a lot of / a little</strong>.<br>
+          <span class="legend">Megjegyzés: <strong>a little</strong> = "van egy kevés" (pozitív), <strong>little</strong> = "kevés" (negatívabb).</span>
+        </td>
+      </tr>
+
+      <tr>
+        <td><b>Összefoglaló (few / little)</b></td>
+        <td colspan="4" style="text-align:left">
+          <ul style="margin:0 0 0 18px; padding:0">
+            <li><strong>a few</strong> (count) — van néhány (pozitív): <em>I have a few friends.</em></li>
+            <li><strong>few</strong> (count) — kevés (negatívabb): <em>Few people came.</em></li>
+            <li><strong>a little</strong> (uncount) — van egy kevés (pozitív): <em>I have a little time.</em></li>
+            <li><strong>little</strong> (uncount) — kevés (negatívabb): <em>Little progress was made.</em></li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:8px;font-size:13px;color:var(--muted);">
+    A táblázat megtartva és kibővítve — rövid példa mondatokkal és magyarázatokkal.
+  </div>
+</div>
+
+<div class="content wrap" role="main" aria-live="polite">
+  <div class="controls">
+    <div>
+      <label for="numQ">Kérdések száma:</label>
+      <select id="numQ" aria-label="Kérdések száma">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="15">15</option>
+      </select>
+      <button id="newQuizBtn" class="primary">Új teszt (véletlenszerű)</button>
+      <button id="regenBtn" class="ghost">Újra (ugyanaz)</button>
+    </div>
+    <div style="margin-left:auto">
+      <span class="tag">some / any / much / many / a lot of / few / a few / little / a little</span>
+    </div>
+  </div>
+
+  <section class="rules">
+    <strong>Rövid szabályok:</strong>
+    <ul>
+      <li><b>some</b> – állító mondatban, ajánlatnál/kérésnél (néhány; uncount: egy kevés).</li>
+      <li><b>any</b> – kérdésben és tagadásban (bármennyi / nincs).</li>
+      <li><b>many</b> – megszámlálható: kérdés/tagadás (sok).</li>
+      <li><b>much</b> – megszámlálhatatlan: kérdés/tagadás (sok).</li>
+      <li><b>a lot of</b> – állító mondatban mind count és uncount (sok).</li>
+      <li><b>a few / few / a little / little</b> – kevés árnyalatai: a few / a little pozitívabb; few / little negatívabb.</li>
+    </ul>
+  </section>
+
+  <section class="quiz" aria-labelledby="quizTitle">
+    <h2 id="quizTitle">Gyors teszt</h2>
+    <div id="quizArea" aria-live="polite"></div>
+
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+      <button id="checkBtn" class="primary">Ellenőrzés</button>
+      <button id="showAnswersBtn" class="ghost">Mutasd a helyes válaszokat</button>
+      <button id="clearBtn" class="ghost">Törlés (újrakezdés)</button>
+    </div>
+
+    <div id="result" role="status" aria-live="polite" style="margin-top:12px"></div>
+  </section>
+
+  <footer>Ha hibát találsz, szólj — javítom. Jó gyakorlást!</footer>
+</div>
+
+<script>
+/* ----------------------
+   Mondatbank (több választ is elfogad)
+   (Ezt bővítheted tetszés szerint; jelenleg ~ thirty+ tétel.)
+   ---------------------- */
+const sentenceBank = [
+  { text:"There are ___ people in the park.", hu:"Sok ember van a parkban.", answers:["many","a lot of"], hint:"Pozitív, megszámlálható → many / a lot of", expl:"Pozitív mondat: many vagy a lot of." },
+  { text:"I don’t have ___ money.", hu:"Nincs sok pénzem.", answers:["much","any"], hint:"Tagadó + uncount → much / any", expl:"Tagadás + uncount → much vagy any." },
+  { text:"Would you like ___ tea?", hu:"Kérsz teát?", answers:["some"], hint:"Ajánlat/kérés → some", expl:"Ajánlatoknál/kéréseknél some. (Do you want some coffee?)" },
+  { text:"Do you have ___ friends in London?", hu:"Vannak barátaid Londonban?", answers:["any"], hint:"Kérdés → any", expl:"Általános kérdésekben gyakran any." },
+  { text:"There is ___ sugar on the table.", hu:"Van cukor az asztalon.", answers:["a lot of","some"], hint:"Pozitív, uncount → a lot of / some", expl:"Pozitív mondatban a lot of vagy some." },
+  { text:"I have ___ books about history.", hu:"Van néhány történelemmel kapcsolatos könyvem.", answers:["some","a lot of"], hint:"Pozitív, megszámlálható → some / a lot of", expl:"Pozitív: some vagy a lot of." },
+  { text:"There isn’t ___ milk left.", hu:"Nem maradt sok tej.", answers:["much","any"], hint:"Tagadó + uncount → much / any", expl:"Tagadásban much vagy any." },
+  { text:"Are there ___ apples in the fridge?", hu:"Vannak almák a hűtőben?", answers:["any","many"], hint:"Kérdés — any / many", expl:"Kérdésben any vagy many." },
+  { text:"She has ___ time today.", hu:"Ma sok ideje van.", answers:["a lot of"], hint:"Pozitív + uncount → a lot of", expl:"Pozitív + uncount = a lot of." },
+  { text:"I have ___ questions for you.", hu:"Van néhány kérdésem neked.", answers:["a few","some"], hint:"Pozitív, kevés — a few / some", expl:"A few = van néhány (pozitív értelem)." },
+
+  { text:"There are ___ bottles on the table.", hu:"Sok üveg van az asztalon.", answers:["many","a lot of"], hint:"Megszámlálható pozitív — many / a lot of", expl:"Pozitív count = many/a lot of." },
+  { text:"Do you want ___ coffee?", hu:"Szeretnél kávét?", answers:["some"], hint:"Ajánlat — some", expl:"Felajánlásnál/kérésnél some. (Do you want some coffee?)" },
+  { text:"We don’t have ___ time to waste.", hu:"Nincs sok időnk pazarolni.", answers:["much"], hint:"Tagadó + uncount — much", expl:"Tagadó + uncount = much." },
+  { text:"How many ___ tickets are left?", hu:"Hány jegy maradt?", answers:["many"], hint:"How many → many", expl:"How many a megszámlálható főnevekkel." },
+  { text:"Is there ___ news today?", hu:"Van valami hír ma?", answers:["any"], hint:"Kérdés + uncount → any", expl:"Kérdés + uncount = any." },
+
+  { text:"There is ___ rice in the pot.", hu:"Van rizs a fazékban.", answers:["some","a lot of"], hint:"Pozitív + uncount — some / a lot of", expl:"Pozitív uncount: some vagy a lot of." },
+  { text:"I ate ___ cake yesterday.", hu:"Egy kis sütit ettem tegnap.", answers:["a little","some"], hint:"Pozitív + uncount (kisebb mennyiség) — a little / some", expl:"Kisebb mennyiség: a little vagy some." },
+  { text:"There are ___ problems with this plan.", hu:"Kevés probléma van ezzel a tervvel.", answers:["few"], hint:"Kevés (negatívabb) — few", expl:"Few = kevés (negatívabb árnyalat)." },
+  { text:"He has ___ experience in teaching.", hu:"Van némi tapasztalata az oktatásban.", answers:["a little"], hint:"Pozitív, kevés — a little", expl:"A little = van egy kevés (pozitív)." },
+  { text:"Do you have ___ information about the route?", hu:"Van információd az útvonalról?", answers:["any"], hint:"Kérdés + uncount — any", expl:"Kérdés + uncount = any." },
+
+  { text:"I saw ___ people at the meeting.", hu:"Láttam néhány embert a találkozón.", answers:["a few","some"], hint:"Pozitív, count — a few / some", expl:"A few / some = néhány." },
+  { text:"They don't have ___ money to buy that.", hu:"Nincs elég pénzük megvenni azt.", answers:["much","any"], hint:"Tagadó + uncount — much / any", expl:"Tagadás + uncount = much/any." },
+  { text:"Are there ___ seats available?", hu:"Van szabad hely?", answers:["any","many"], hint:"Kérdés — any / many", expl:"Kérdésben any vagy many." },
+  { text:"We have ___ volunteers for the event.", hu:"Van néhány önkéntesünk az eseményre.", answers:["a few","some"], hint:"Pozitív, count — a few / some", expl:"Pozitív count = a few / some." },
+  { text:"There are ___ reasons to be worried.", hu:"Sok oka van az aggodalomnak.", answers:["many","a lot of"], hint:"Pozitív, count — many / a lot of", expl:"Many / a lot of." },
+
+  { text:"Is there ___ sugar in your tea?", hu:"Van cukor a teádban?", answers:["any"], hint:"Kérdés + uncount — any", expl:"Kérdés + uncount = any." },
+  { text:"I have ___ work to finish.", hu:"Van egy kevés munkám befejezni.", answers:["a little"], hint:"Pozitív, kevés — a little", expl:"A little = egy kevés." },
+  { text:"Do you need ___ help?", hu:"Szükséged van segítségre?", answers:["any"], hint:"Kérdés — any", expl:"Kérdés: any." },
+  { text:"There are ___ chairs in the hall.", hu:"Sok szék van a teremben.", answers:["many","a lot of"], hint:"Pozitív count — many / a lot of", expl:"Many vagy a lot of." },
+  { text:"I drank ___ coffee this morning.", hu:"Ittam egy kis kávét ma reggel.", answers:["a little","some"], hint:"Pozitív uncount kis mennyiség — a little / some", expl:"Kis mennyiség: a little vagy some." }
+];
+
+/* ----------------------
+   Segédfüggvények
+   ---------------------- */
+function shuffleArray(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function getRandomQuestions(n){
+  const bank = sentenceBank.slice();
+  shuffleArray(bank);
+  const take = Math.min(Math.max(1, Math.floor(n) || 10), bank.length);
+  return bank.slice(0, take);
+}
+
+/* ----------------------
+   DOM referenciák
+   ---------------------- */
+const numQSel = document.getElementById('numQ');
+const quizArea = document.getElementById('quizArea');
+const resultDiv = document.getElementById('result');
+const newQuizBtn = document.getElementById('newQuizBtn');
+const regenBtn = document.getElementById('regenBtn');
+const clearBtn = document.getElementById('clearBtn');
+const showAnswersBtn = document.getElementById('showAnswersBtn');
+const checkBtn = document.getElementById('checkBtn');
+
+let currentQuestions = []; // jelenlegi kérdések
+
+/* ----------------------
+   Render logika
+   ---------------------- */
+function renderQuiz(n){
+  const count = Math.min(Math.max(1, Number(n) || 10), sentenceBank.length);
+  quizArea.innerHTML = '';
+  resultDiv.innerHTML = '';
+  currentQuestions = getRandomQuestions(count);
+  currentQuestions.forEach((q, idx) => {
+    const selOptions = ["some","any","much","many","a lot of","few","a few","little","a little"];
+    const div = document.createElement('div');
+    div.className = 'q';
+    div.style.marginBottom = '10px';
+    div.innerHTML = `
+      <p><strong>${idx+1}.</strong> ${q.text} <span style="color:#444;font-size:13px">(<em>${q.hu}</em>)</span></p>
+      <select id="q${idx}" aria-label="Válasz a ${idx+1}. kérdésre">
+        <option value="">--Kihagyom / nem válaszolok--</option>
+        ${selOptions.map(o=>`<option value="${o}">${o}</option>`).join('')}
+      </select>
+      <div class="hint" id="hint-${idx}">${q.hint}</div>
+      <div class="expl" id="expl-${idx}" style="display:none"></div>
+      <div id="qmeta-${idx}" style="font-size:12px;color:var(--muted);margin-top:6px"></div>
+    `;
+    quizArea.appendChild(div);
+
+    // példaszöveg sor
+    const qmeta = document.getElementById(`qmeta-${idx}`);
+    if(qmeta){
+      // ha több helyes válasz van, mutassa az elsőt példaként
+      const firstAns = Array.isArray(q.answers) && q.answers.length ? q.answers[0] : '';
+      qmeta.textContent = `Például: ${q.text.replace('___', firstAns)} — Hint: ${q.hint}`;
+    }
+  });
+  const first = document.querySelector('#q0');
+  if(first) first.focus();
+}
+
+/* ----------------------
+   Gombok eseményei
+   ---------------------- */
+newQuizBtn.addEventListener('click', ()=> renderQuiz(Number(numQSel.value) || 10));
+regenBtn.addEventListener('click', ()=> renderQuiz(Number(numQSel.value) || 10));
+
+clearBtn.addEventListener('click', ()=>{
+  // visszaállítjuk az összes selectet aktív, alapértelmezett állapotra
+  currentQuestions.forEach((_,i)=>{
+    const old = document.getElementById('q'+i);
+    if(old){
+      const parent = old.parentElement;
+      const id = old.id;
+      const aria = old.getAttribute('aria-label') || '';
+      const selOptions = ["some","any","much","many","a lot of","few","a few","little","a little"];
+      const newSel = document.createElement('select');
+      newSel.id = id;
+      newSel.setAttribute('aria-label', aria);
+      newSel.innerHTML = `<option value="">--Kihagyom / nem válaszolok--</option>` + selOptions.map(o=>`<option value="${o}">${o}</option>`).join('');
+      parent.replaceChild(newSel, old);
+    }
+    const expl = document.getElementById('expl-'+i);
+    if(expl){ expl.style.display='none'; expl.textContent=''; expl.style.background=''; }
+    const meta = document.getElementById('qmeta-'+i);
+    if(meta) meta.style.display = 'block';
+  });
+  resultDiv.innerHTML = '';
+});
+
+/* show answers: összegzés + magyarázatok */
+showAnswersBtn.addEventListener('click', ()=>{
+  if(currentQuestions.length === 0){
+    resultDiv.innerHTML = `<div style="color:var(--bad-color);font-weight:700">Nincs betöltött teszt — kattints az "Új teszt" gombra.</div>`;
+    return;
+  }
+  let out = '<div style="font-weight:700;margin-bottom:8px">Helyes válaszok (összegzés):</div>';
+  currentQuestions.forEach((q,i)=>{
+    out += `<div style="margin-bottom:6px"><strong>${i+1}.</strong> ${q.text.replace('___','____')} — Helyes: <strong>${q.answers.join(', ')}</strong><div style="margin-top:4px;color:#555">${q.hu}</div></div>`;
+    const explDiv = document.getElementById('expl-'+i);
+    if(explDiv){ explDiv.textContent = q.expl || ''; explDiv.style.display='block'; explDiv.style.background='#f7fbff'; }
+  });
+  resultDiv.innerHTML = out;
+  resultDiv.scrollIntoView({behavior:'smooth', block:'center'});
+});
+
+/* Helper: újrarajzolja (helyettesíti) a selectet, és színezi az opciókat */
+function redrawSelectWithColors(sel, correctAnswers, userValue){
+  const optionsList = ["","some","any","much","many","a lot of","few","a few","little","a little"];
+  const newSel = document.createElement('select');
+  newSel.disabled = true;
+  newSel.style.minWidth = sel.style.minWidth || '';
+  newSel.id = sel.id; // megtartjuk az id-t, hogy clear működjön
+  newSel.setAttribute('aria-label', sel.getAttribute('aria-label') || '');
+  optionsList.forEach(opt => {
+    const option = document.createElement('option');
+    option.value = opt;
+    option.textContent = opt === "" ? "--Kihagyom / nem válaszolok--" : opt;
+    // zöld: jó válaszok; piros: a felhasználó rossz választása; halvány: a többiek
+    if(opt !== "" && correctAnswers.includes(opt)){
+      option.style.color = 'green';
+      option.style.fontWeight = '700';
+    } else if(opt === userValue && userValue !== "" && !correctAnswers.includes(userValue)){
+      option.style.color = 'red';
+      option.style.fontWeight = '700';
+    } else {
+      option.style.color = ''; // alapértelmezett
+    }
+    if(opt === userValue){
+      option.selected = true;
+    }
+    newSel.appendChild(option);
+  });
+  sel.parentElement.replaceChild(newSel, sel);
+}
+
+/* Ellenőrzés: többszörös helyes válasz, kihagyás, select újrarajzolás, magyarázatok */
+checkBtn.addEventListener('click', ()=>{
+  if(currentQuestions.length === 0){
+    resultDiv.innerHTML = `<div style="color:var(--bad-color);font-weight:700">Nincs betöltött teszt — kattints az "Új teszt" gombra.</div>`;
+    return;
+  }
+  let correct = 0, skipped = 0;
+  let out = '';
+  currentQuestions.forEach((q,i)=>{
+    const sel = document.getElementById('q'+i);
+    const val = (sel && sel.value) ? sel.value.trim() : '';
+    const explDiv = document.getElementById('expl-'+i);
+
+    // select újrarajzolása (színezett, disabled)
+    if(sel){
+      redrawSelectWithColors(sel, q.answers, val);
+    }
+
+    // elrejtjük a meta-példát (pl. "Do you want some coffee?")
+    const meta = document.getElementById('qmeta-'+i);
+    if(meta) meta.style.display = 'none';
+
+    if(q.answers.includes(val)){
+      correct++;
+      out += `<div class="row-feedback ok">✔ ${q.text} — Te: <strong style="color:var(--ok-color)">${val}</strong><div style="margin-top:6px;color:#155724">${q.hu}</div></div>`;
+      if(explDiv){ explDiv.textContent = q.expl || ''; explDiv.style.display='block'; explDiv.style.background='var(--ok-bg)'; }
+    } else if(val === ''){
+      skipped++;
+      out += `<div class="row-feedback skp">⚠ ${q.text} — <em>Kihagyva</em>. Helyes: <strong style="color:var(--ok-color)">${q.answers.join(', ')}</strong><div style="margin-top:6px;color:#8a6a00">${q.hu}</div></div>`;
+      if(explDiv){ explDiv.textContent = q.expl || ''; explDiv.style.display='block'; explDiv.style.background='var(--skip-bg)'; }
+    } else {
+      out += `<div class="row-feedback bad">✖ ${q.text} — Te: <strong style="color:var(--bad-color)">${val}</strong> — Helyes: <strong style="color:var(--ok-color)">${q.answers.join(', ')}</strong><div style="margin-top:6px;color:#8a1f1f">${q.hu}</div></div>`;
+      if(explDiv){ explDiv.textContent = q.expl || ''; explDiv.style.display='block'; explDiv.style.background='var(--bad-bg)'; }
+    }
+  });
+  const pct = Math.round(correct / currentQuestions.length * 100);
+  resultDiv.innerHTML = `<div style="font-weight:700">Eredmény: ${correct} / ${currentQuestions.length} — (${pct}%) &nbsp;|&nbsp; Kihagyott: ${skipped}</div>${out}`;
+  resultDiv.scrollIntoView({behavior:'smooth', block:'center'});
+});
+
+/* első betöltés */
+renderQuiz(Number(numQSel.value) || 10);
+</script>
+
+</body>
+</html>
