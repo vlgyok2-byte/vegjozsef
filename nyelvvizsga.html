@@ -1,1 +1,109 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<title>Angol alapfok teszt</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; background: #f5f7fa; color: #222; }
+  h1 { text-align: center; }
+  .question { margin: 15px 0; padding: 10px; border-radius: 8px; background: #fff; box-shadow: 0 0 4px rgba(0,0,0,0.1);}
+  .options label { display: block; margin: 5px 0; padding: 2px 4px; border-radius: 4px; }
+  button { margin: 15px 5px; padding: 10px 15px; border: none; border-radius: 8px; background: #007bff; color: #fff; cursor: pointer; }
+  button:hover { background: #0056b3; }
+  #result { font-size: 18px; font-weight: bold; margin-top: 20px; }
+  .correct { background: #d4edda; color: #155724; }
+  .incorrect { background: #f8d7da; color: #721c24; }
+
+  /* Fix pozíciójú index gomb */
+  .home-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 50px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    text-decoration: none;
+  }
+  .home-button:hover {
+    background: #1e7e34;
+  }
+</style>
+</head>
+<body>
+
+<h1>Angol alapfok teszt</h1>
+<div id="quiz"></div>
+<button onclick="submitQuiz()">Ellenőrzés</button>
+<button onclick="restartQuiz()">Újrakezdés</button>
+<div id="result"></div>
+
+<!-- Index gomb -->
+<a href="index.html" class="home-button">🏠 Főoldal</a>
+
+<script src="questions.js"></script>
+<script>
+function getRandomQuestions(arr, num) {
+  return arr.sort(() => 0.5 - Math.random()).slice(0, num);
+}
+
+let questions = [];
+function loadQuiz() {
+  questions = getRandomQuestions(allQuestions, 20); // egyszerre 20 kérdés
+  const quizDiv = document.getElementById("quiz");
+  quizDiv.innerHTML = "";
+  questions.forEach((q, i) => {
+    let html = `<div class="question"><p><b>${i+1}. ${q.q}</b></p><div class="options">`;
+    q.options.forEach((opt, j) => {
+      html += `<label><input type="radio" name="q${i}" value="${j}"> ${opt}</label>`;
+    });
+    html += "</div></div>";
+    quizDiv.innerHTML += html;
+  });
+  document.getElementById("result").innerHTML = "";
+}
+loadQuiz();
+
+function submitQuiz() {
+  let score = 0;
+  questions.forEach((q, i) => {
+    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+    const options = document.querySelectorAll(`input[name="q${i}"]`);
+
+    options.forEach(opt => {
+      opt.parentElement.classList.remove("correct", "incorrect");
+    });
+
+    options.forEach(opt => {
+      if (parseInt(opt.value) === q.correct) {
+        opt.parentElement.classList.add("correct"); // helyes válasz zölddel
+      }
+    });
+
+    if (selected) {
+      if (parseInt(selected.value) === q.correct) {
+        score++;
+      } else {
+        selected.parentElement.classList.add("incorrect"); // rossz válasz pirossal
+      }
+    }
+  });
+  const percent = Math.round((score / questions.length) * 100);
+  document.getElementById("result").innerHTML =
+    `Eredmény: ${score} / ${questions.length} (${percent}%)`;
+}
+
+function restartQuiz() {
+  loadQuiz();
+}
+</script>
+
+</body>
+</html>
+
 
