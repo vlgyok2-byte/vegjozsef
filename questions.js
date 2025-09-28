@@ -173,8 +173,5 @@ const allQuestions = [
   { q: "They ……. not at home yesterday.", options: ["was", "were", "are"], correct: 1 },
   { q: "I ……. English now.", options: ["am learning", "learn", "learns"], correct: 0 },
   { q: "He ……. not like fish.", options: ["doesn't", "don't", "isn't"], correct: 0 },
-  { q: "We ……. a dog.", options: ["have", "has", "haves"], correct: 0 },
-
-
+  { q: "We ……. a dog.", options: ["have", "has", "haves"], correct: 0 }
 ];
-
