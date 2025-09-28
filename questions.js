@@ -19,7 +19,6 @@ const allQuestions = [
   { q: "He ……. at the cinema now.", options: ["is", "are", "be"], correct: 0 },
   { q: "Where ……. you from?", options: ["is", "are", "be"], correct: 1 },
   { q: "She can ……. very well.", options: ["sings", "sing", "singing"], correct: 1 },
-
   { q: "He ……. at the cinema now.", options: ["is", "are", "be"], correct: 0 },
   { q: "They ……. very happy today.", options: ["is", "are", "be"], correct: 1 },
   { q: "I ……. from Hungary.", options: ["am", "is", "are"], correct: 0 },
@@ -30,7 +29,6 @@ const allQuestions = [
   { q: "They ……. students.", options: ["is", "are", "be"], correct: 1 },
   { q: "I ……. a doctor.", options: ["am", "is", "are"], correct: 0 },
   { q: "This ……. my book.", options: ["am", "is", "are"], correct: 1 },
-
   { q: "Do you like tea? – I …….", options: ["doesn't", "don't", "does"], correct: 1 },
   { q: "Peter ……. play football.", options: ["don’t", "doesn’t", "isn’t"], correct: 1 },
   { q: "She usually ……. TV in the evening.", options: ["watch", "watches", "watching"], correct: 1 },
@@ -41,7 +39,6 @@ const allQuestions = [
   { q: "Water ……. at 100°C.", options: ["boil", "boils", "boiling"], correct: 1 },
   { q: "Tom always ……. to school by bus.", options: ["go", "goes", "going"], correct: 1 },
   { q: "She ……. English every day.", options: ["study", "studies", "studying"], correct: 1 },
-
   { q: "Look! The children ……. football.", options: ["play", "plays", "are playing"], correct: 2 },
   { q: "She ……. dinner now.", options: ["is cooking", "cooks", "cooking"], correct: 0 },
   { q: "Listen! The birds …….", options: ["sing", "sings", "are singing"], correct: 2 },
@@ -52,7 +49,6 @@ const allQuestions = [
   { q: "She ……. her homework at the moment.", options: ["does", "is doing", "do"], correct: 1 },
   { q: "The baby ……. now.", options: ["sleeping", "is sleeping", "sleeps"], correct: 1 },
   { q: "He ……. a letter right now.", options: ["write", "is writing", "writes"], correct: 1 },
-
   { q: "There ……. some apples on the table.", options: ["is", "are", "be"], correct: 1 },
   { q: "There ……. any bread in the fridge.", options: ["isn't", "aren't", "doesn't"], correct: 0 },
   { q: "Are there ……. chairs in the room?", options: ["some", "any", "much"], correct: 1 },
@@ -63,7 +59,6 @@ const allQuestions = [
   { q: "There aren’t ……. students here.", options: ["some", "any", "much"], correct: 1 },
   { q: "How ……. friends do you have?", options: ["much", "many", "any"], correct: 1 },
   { q: "She has ……. books in her bag.", options: ["many", "much", "any"], correct: 0 },
-
   { q: "My girlfriend is …….", options: ["Italian", "Greece", "Sweden"], correct: 0 },
   { q: "My friend is from …….", options: ["Italy", "Italian", "Italians"], correct: 0 },
   { q: "They are …….", options: ["Hungary", "Hungarian", "Hungarians"], correct: 1 },
@@ -74,7 +69,6 @@ const allQuestions = [
   { q: "Are you …….?", options: ["England", "English", "Englands"], correct: 1 },
   { q: "She comes from …….", options: ["Poland", "Polish", "Polishes"], correct: 0 },
   { q: "He is …….", options: ["Poland", "Polish", "Polishes"], correct: 1 },
-
   { q: "Do you like tea? – I …….", options: ["doesn't", "don't", "does"], correct: 1 },
   { q: "She ……. from London.", options: ["am", "is", "are"], correct: 1 },
   { q: "They ……. playing football now.", options: ["is", "are", "be"], correct: 1 },
@@ -175,3 +169,4 @@ const allQuestions = [
   { q: "He ……. not like fish.", options: ["doesn't", "don't", "isn't"], correct: 0 },
   { q: "We ……. a dog.", options: ["have", "has", "haves"], correct: 0 }
 ];
+
