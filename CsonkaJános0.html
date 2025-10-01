@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>Szövegszerkesztés – „Csonka János” teszt (Word 2016)</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f7fa; color: #222; }
+    h1 { color: #333; }
+    .question { background: #fff; padding: 12px; margin-bottom: 12px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .question p { margin: 0 0 8px 0; font-weight: bold; }
+    .answers label { display: block; margin-bottom: 6px; cursor: pointer; }
+    .correct { color: green; font-weight: bold; }
+    .incorrect { color: red; font-weight: bold; }
+    #result { margin-top: 20px; font-size: 18px; font-weight: bold; }
+    button { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer; border: none; background: #0066cc; color: #fff; border-radius: 5px; }
+    button:hover { background: #0055a3; }
+  </style>
+</head>
+<body>
+
+<h1>Szövegszerkesztés – „Csonka János” feladat teszt (Word 2016)</h1>
+<p>Válassz egyet minden kérdésnél! A beküldés után helyes válasz zölddel, helytelen választás pirossal jelölődik. <br>
+Értékelés: 50 % alatt = Közepes (3), 50 %–75 % = Jó (4), 75 % felett = Jeles (5).</p>
+
+<form id="quizForm">
+
+<!-- 1 -->
+<div class="question">
+  <p>1. Milyen margóbeállítást kell alkalmazni a feladatban a felső és alsó margóra?</p>
+  <div class="answers">
+    <label><input type="radio" name="q1" value="0"> 2,0 cm</label>
+    <label><input type="radio" name="q1" value="1"> 2,6 cm</label>
+    <label><input type="radio" name="q1" value="0"> 3,0 cm</label>
+  </div>
+</div>
+
+<!-- 2 -->
+<div class="question">
+  <p>2. Milyen betűtípust kell használni (a törzsszöveghez) a feladatban?</p>
+  <div class="answers">
+    <label><input type="radio" name="q2" value="1"> Garamond (vagy Liberation Serif)</label>
+    <label><input type="radio" name="q2" value="0"> Arial</label>
+    <label><input type="radio" name="q2" value="0"> Times New Roman</label>
+  </div>
+</div>
+
+<!-- 3 -->
+<div class="question">
+  <p>3. Mekkora legyen a törzsszöveg betűmérete?</p>
+  <div class="answers">
+    <label><input type="radio" name="q3" value="0"> 10 pt</label>
+    <label><input type="radio" name="q3" value="1"> 12 pt</label>
+    <label><input type="radio" name="q3" value="0"> 14 pt</label>
+  </div>
+</div>
+
+<!-- 4 -->
+<div class="question">
+  <p>4. Milyen sorköz legyen a bekezdéseknél a feladat utasítása szerint?</p>
+  <div class="answers">
+    <label><input type="radio" name="q4" value="1"> Egyszeres sorköz</label>
+    <label><input type="radio" name "q4" value="0"> 1,5-es sorköz</label>
+    <label><input type="radio" name="q4" value="0"> Dupla sorköz</label>
+  </div>
+</div>
+
+<!-- 5 -->
+<div class="question">
+  <p>5. A bekezdések térközét hogyan kell beállítani a feladatban?</p>
+  <div class="answers">
+    <label><input type="radio" name="q5" value="0"> Előtte 3 pt, utána 0 pt</label>
+    <label><input type="radio" name="q5" value="1"> Előtte 0 pt, utána 3 pt</label>
+    <label><input type="radio" name="q5" value="0"> Előtte 6 pt, utána 6 pt</label>
+  </div>
+</div>
+
+<!-- 6 -->
+<div class="question">
+  <p>6. Milyen igazítást kérnek a bekezdéseknél?</p>
+  <div class="answers">
+    <label><input type="radio" name="q6" value="0"> Balra igazítás</label>
+    <label><input type="radio" name="q6" value="1"> Sorkizárt igazítás</label>
+    <label><input type="radio" name="q6" value="0"> Középre igazítás</label>
+  </div>
+</div>
+
+<!-- 7 -->
+<div class="question">
+  <p>7. Milyen automatikus formázási lehetőséget kell bekapcsolni a dokumentumban?</p>
+  <div class="answers">
+    <label><input type="radio" name="q7" value="1"> Automatikus elválasztás</label>
+    <label><input type="radio" name="q7" value="0"> Automatikus javítás</label>
+    <label><input type="radio" name="q7" value="0"> Automatikus kisbetűsítés</label>
+  </div>
+</div>
+
+<!-- 8 -->
+<div class="question">
+  <p>8. Milyen betűméretet kell beállítani a címnél?</p>
+  <div class="answers">
+    <label><input type="radio" name="q8" value="1"> 20 pt</label>
+    <label><input type="radio" name="q8" value="0"> 16 pt</label>
+    <label><input type="radio" name="q8" value="0"> 24 pt</label>
+  </div>
+</div>
+
+<!-- 9 -->
+<div class="question">
+  <p>9. Az alcímek betűméretét hány pontosra kell állítani?</p>
+  <div class="answers">
+    <label><input type="radio" name="q9" value="1"> 14 pt</label>
+    <label><input type="radio" name="q9" value="0"> 12 pt</label>
+    <label><input type="radio" name="q9" value="0"> 16 pt</label>
+  </div>
+</div>
+
+<!-- 10 -->
+<div class="question">
+  <p>10. Milyen stílusbeállítást kérnek a cím és az alcímeknél?</p>
+  <div class="answers">
+    <label><input type="radio" name="q10" value="1"> Félkövér és kiskapitális</label>
+    <label><input type="radio" name="q10" value="0"> Dőlt és aláhúzott</label>
+    <label><input type="radio" name="q10" value="0"> Normál, nem formázott</label>
+  </div>
+</div>
+
+<!-- 11 -->
+<div class="question">
+  <p>11. Mekkora térközt kell a cím/alcím előtt és után alkalmazni?</p>
+  <div class="answers">
+    <label><input type="radio" name="q11" value="0"> Előtte 6 pt, utána 3 pt</label>
+    <label><input type="radio" name="q11" value="1"> Előtte 3 pt, utána 6 pt</label>
+    <label><input type="radio" name "q11" value="0"> Előtte 0 pt, utána 12 pt</label>
+  </div>
+</div>
+
+<!-- 12 -->
+<div class="question">
+  <p>12. A cím utáni bekezdés szövegét milyen stílusúvá kell tenni?</p>
+  <div class="answers">
+    <label><input type="radio" name="q12" value="1"> Dőlt + félkövér</label>
+    <label><input type="radio" name="q12" value="0"> Csak dőlt</label>
+    <label><input type="radio" name="q12" value="0"> Csak félkövér</label>
+  </div>
+</div>
+
+<!-- 13 -->
+<div class="question">
+  <p>13. Milyen háttérszínt kell alkalmazni a cím utáni bekezdésnél?</p>
+  <div class="answers">
+    <label><input type="radio" name="q13" value="1"> Világosszürke</label>
+    <label><input type="radio" name="q13" value="0"> Fehér</label>
+    <label><input type="radio" name="q13" value="0"> Sötétszürke</label>
+  </div>
+</div>
+
+<!-- 14 -->
+<div class="question">
+  <p>14. Hol kell elhelyezni a CsJfoto.jpg képet?</p>
+  <div class="answers">
+    <label><input type="radio" name="q14" value="1"> Az első alcím utáni bekezdés mellett, bal margóhoz igazítva</label>
+    <label><input type="radio" name="q14" value="0"> A dokumentum legvégén</label>
+    <label><input type="radio" name="q14" value="0"> A második alcím után középre igazítva</label>
+  </div>
+</div>
+
+<!-- 15 -->
+<div class="question">
+  <p>15. Mekkora legyen a CsJfoto.jpg kép szélessége arányos méretezéssel?</p>
+  <div class="answers">
+    <label><input type="radio" name="q15" value="0"> 5,0 cm</label>
+    <label><input type="radio" name="q15" value="1"> 3,5 cm</label>
+    <label><input type="radio" name="q15" value="0"> 4,5 cm</label>
+  </div>
+</div>
+
+<!-- 16 -->
+<div class="question">
+  <p>16. Milyen szöveg körbefuttatási beállítást kell alkalmazni a CsJfoto.jpg képnél?</p>
+  <div class="answers">
+    <label><input type="radio" name="q16" value="1"> Jobbról vegye körbe a szöveget</label>
+    <label><input type="radio" name="q16" value="0"> Nem körbe vettetés (normál beillesztés)</label>
+    <label><input type="radio" name="q16" value="0"> A szöveg mögé helyezés</label>
+  </div>
+</div>
+
+<!-- 17 -->
+<div class="question">
+  <p>17. Milyen térközök legyenek a kép és a szöveg között (jobbra, lefelé)?</p>
+  <div class="answers">
+    <label><input type="radio" name="q17" value="1"> 0,4 cm</label>
+    <label><input type="radio" name="q17" value="0"> 1,0 cm</label>
+    <label><input type="radio" name="q17" value="0"> 0,1 cm</label>
+  </div>
+</div>
+
+<!-- 18 -->
+<div class="question">
+  <p>18. Milyen feliratot kell elhelyezni a kép alatt (CsJfoto.jpg)?</p>
+  <div class="answers">
+    <label><input type="radio" name="q18" value="1"> (1852 – 1939)</label>
+    <label><input type="radio" name="q18" value="0"> Bánki–Csonka</label>
+    <label><input type="radio" name="q18" value="0"> (1900 – 1950)</label>
+  </div>
+</div>
+
+<!-- 19 -->
+<div class="question">
+  <p>19. Hogyan helyezkedik el a porlaszto.jpg kép?</p>
+  <div class="answers">
+    <label><input type="radio" name="q19" value="1"> Középre igazítva, nem körbe vettetés</label>
+    <label><input type="radio" name="q19" value="0"> Balra igazítva körbefuttatással</label>
+    <label><input type="radio" name="q19" value="0"> Jobbra igazítva körbefuttatással</label>
+  </div>
+</div>
+
+<!-- 20 -->
+<div class="question">
+  <p>20. Mekkora szélességűre kell méretezni a porlaszto.jpg képet?</p>
+  <div class="answers">
+    <label><input type="radio" name="q20" value="0"> 5,0 cm</label>
+    <label><input type="radio" name="q20" value="1"> 4,0 cm</label>
+    <label><input type="radio" name="q20" value="0"> 3,0 cm</label>
+  </div>
+</div>
+
+<!-- 21 -->
+<div class="question">
+  <p>21. A „Motorok:” és „Járművei:” szavak bekezdéseinek mit kell biztosítani?</p>
+  <div class="answers">
+    <label><input type="radio" name="q21" value="1"> Hogy az utánuk következő felsorolás ugyanazon az oldalon legyen</label>
+    <label><input type="radio" name="q21" value="0"> Hogy új oldalon kezdődjenek</label>
+    <label><input type="radio" name="q21" value="0"> Hogy képpel kezdődjenek</label>
+  </div>
+</div>
+
+<!-- 22 -->
+<div class="question">
+  <p>22. Mivel kell elkészíteni az adott felsorolásokat?</p>
+  <div class="answers">
+    <label><input type="radio" name="q22" value="1"> Kötőjellel („-” jel)</label>
+    <label><input type="radio" name="q22" value "0"> Számozással (1., 2., …)</label>
+    <label><input type="radio" name="q22" value="0"> Pontokkal (• jel)</label>
+  </div>
+</div>
+
+<!-- 23 -->
+<div class="question">
+  <p>23. Milyen behúzást kell alkalmazni a felsorolás bekezdéseinél (bal és függő)?</p>
+  <div class="answers">
+    <label><input type="radio" name="q23" value="1"> 0,8 cm</label>
+    <label><input type="radio" name="q23" value="0"> 1,2 cm</label>
+    <label><input type="radio" name="q23" value="0"> 0,4 cm</label>
+  </div>
+</div>
+
+<!-- 24 -->
+<div class="question">
+  <p>24. Hogyan kell konvertálni a tabulátorokkal tagolt szöveget a harmadik alcím után?</p>
+  <div class="answers">
+    <label><input type="radio" name="q24" value="1"> Táblázattá alakítás (Convert Text to Table)</label>
+    <label><input type="radio" name="q24" value="0"> Szöveg másolása képbe</label>
+    <label><input type="radio" name="q24" value="0"> Kézi cellákkal osztás</label>
+  </div>
+</div>
+
+<!-- 25 -->
+<div class="question">
+  <p>25. A feladat utasítása szerint milyen lábjegyzetet kell beszúrni a „7159” lajstromszámhoz?</p>
+  <div class="answers">
+    <label><input type="radio" name="q25" value="1"> „Bánki Donáttal közös szabadalom”</label>
+    <label><input type="radio" name="q25" value="0"> „Csonka találmánya”</label>
+    <label><input type="radio" name="q25" value="0"> „Magyar találmány”</label>
+  </div>
+</div>
+
+</form>
+
+<button onclick="checkQuiz()">Kiértékelés</button>
+<div id="result"></div>
+
+<script>
+function checkQuiz() {
+  const form = document.getElementById('quizForm');
+  const questions = form.getElementsByClassName('question');
+  let correct = 0;
+  const total = 25;
+
+  for (let i = 0; i < questions.length; i++) {
+    const qDiv = questions[i];
+    const opts = qDiv.querySelectorAll('input[type=radio]');
+    let selected = null;
+    opts.forEach(opt => { if (opt.checked) selected = opt; });
+    opts.forEach(opt => {
+      const label = opt.parentElement;
+      label.classList.remove('correct', 'incorrect');
+      if (opt.value === "1") {
+        label.classList.add('correct');
+      }
+      if (selected === opt && opt.value === "0") {
+        label.classList.add('incorrect');
+      }
+    });
+    if (selected && selected.value === "1") {
+      correct++;
+    }
+  }
+
+  const pct = (correct / total) * 100;
+  let grade = "";
+  if (pct < 50) grade = "Közepes (3)";
+  else if (pct <= 75) grade = "Jó (4)";
+  else grade = "Jeles (5)";
+
+  document.getElementById('result').innerText =
+    "Eredmény: " + correct + " / " + total + " — " + Math.round(pct) + "% → " + grade;
+}
+</script>
+
+</body>
+</html>
