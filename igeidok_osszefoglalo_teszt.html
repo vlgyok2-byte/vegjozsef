@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Igeidők — 100 kérdéses gyakorló (5 kérdés/lap) — javított</title>
+  <style>
+    :root{--bg:#f6f8fb;--card:#fff;--accent:#0b74de;--muted:#666}
+    body{font-family:Inter,ui-sans-serif,system-ui,Roboto,Arial;margin:18px;background:var(--bg);color:#111}
+    h1{color:var(--accent);margin:0 0 6px;font-size:1.6rem}
+    p.small{color:var(--muted);margin:3px 0 12px}
+    .card{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(12,24,40,.06);margin-bottom:12px}
+    .row{display:flex;gap:12px;align-items:center}
+    .controls{display:flex;gap:8px;flex-wrap:wrap}
+    .q{padding:12px;border-radius:8px;background:linear-gradient(180deg,#fff,#fbfdff);margin-bottom:10px}
+    input[type=text]{padding:8px;border-radius:6px;border:1px solid #d1d7e0;width:320px;max-width:100%}
+    button{background:var(--accent);color:white;border:none;padding:10px 14px;border-radius:8px;cursor:pointer}
+    button.ghost{background:#e9f2ff;color:var(--accent);border:1px solid #cfe4ff}
+    .meta{margin-top:8px;color:var(--muted)}
+    .stats{margin-top:12px;padding:10px;border-radius:8px;background:#fffef6;border:1px solid #fff2d9}
+    .correct{border-left:6px solid #43b77a;background:#f0fff4}
+    .wrong{border-left:6px solid #f26b6b;background:#fff5f5}
+    .disabled{opacity:.6;pointer-events:none}
+    footer{margin-top:18px;color:var(--muted);font-size:0.9rem}
+    #finalResult{margin-top:14px;padding:12px;background:#fff;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.04)}
+    .wrongList p{margin:8px 0;padding:8px;background:#fff5f5;border-radius:6px}
+    @media(max-width:640px){input[type=text]{width:100%}}
+  </style>
+</head>
+<body>
+  <h1>Igeidők gyakorlása — 5 kérdés/lap (100 kérdés)</h1>
+  <p class="small">Minden lap véletlenszerűen 5 kérdést mutat a teljes kérdésbankból. Gépeld be a hiányzó igealakokat (pl.: <code>works</code>, <code>is raining</code>, <code>have been</code>). Kattints az <strong>Értékelés</strong>-re az aktuális lap javításához, majd <strong>Következő</strong>-re továbblépéshez. Ha végeztél, kattints a <strong>Befejezés</strong>-re az összesített eredményhez.</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="controls">
+        <button id="checkBtn">Értékelés</button>
+        <button id="nextBtn" class="ghost">Következő</button>
+        <button id="finishBtn" class="ghost">Befejezés</button>
+        <button id="newBtn" class="ghost">Új teszt</button>
+      </div>
+      <div style="margin-left:auto;text-align:right">
+        <div id="pageInfo">Oldal: 0 / 0</div>
+        <div class="meta" id="usedInfo">Megjelenített kérdések: 0</div>
+      </div>
+    </div>
+
+    <div id="quizArea" style="margin-top:12px"></div>
+
+    <div class="stats" id="statsArea">
+      <div><strong>Összes megoldott kérdés:</strong> <span id="totalSolved">0</span></div>
+      <div><strong>Helyes válaszok:</strong> <span id="totalCorrect">0</span></div>
+      <div><strong>Teljesítmény:</strong> <span id="percent">0%</span></div>
+    </div>
+
+    <div id="finalResult" style="display:none"></div>
+  </div>
+
+  <footer>
+    <div>Használat: töltsd ki a hiányzó igealakokat (kis- és nagybetűtől független). Ha a rendszer más formátumot is elfogadhat a kérdéshez (pl. több lehetséges helyes válasz), azt a kérdés adataihoz lehet bővíteni — jelezd, ha szeretnéd, hogy egyéb alakokat engedélyezzek.</div>
+  </footer>
+
+<script>
+// ======== Kérdésbank (legalább 100 vegyes kérdés) ========
+const allQuestions = [
+  {q:"She ______ (work) every day.", a:["works"]},
+  {q:"Look! It ______ (rain) outside.", a:["is raining"]},
+  {q:"I ______ (never / be) to Paris.", a:["have never been","i have never been"]},
+  {q:"They ______ (visit) us last weekend.", a:["visited"]},
+  {q:"By 2026, we ______ (finish) the project.", a:["will have finished"]},
+  {q:"I ______ (study) now.", a:["am studying"]},
+  {q:"She ______ (play) tennis on Sundays.", a:["plays"]},
+  {q:"He ______ (not / go) to school yesterday.", a:["did not go","didn't go"]},
+  {q:"They ______ (live) here for 5 years.", a:["have lived"]},
+  {q:"By the time you arrive, I ______ (cook) dinner.", a:["will have cooked"]},
+  {q:"I ______ (read) this book twice.", a:["have read"]},
+  {q:"It ______ (snow) outside now.", a:["is snowing"]},
+  {q:"He ______ (finish) his homework yesterday.", a:["finished"]},
+  {q:"She ______ (not / like) coffee.", a:["does not like","doesn't like"]},
+  {q:"By next year, I ______ (graduate).", a:["will have graduated"]},
+  {q:"We ______ (go) to the cinema every weekend.", a:["go"]},
+  {q:"He ______ (sleep) when I called.", a:["was sleeping"]},
+  {q:"They ______ (build) a new house last year.", a:["built"]},
+  {q:"I ______ (see) that movie before.", a:["have seen"]},
+  {q:"Tomorrow at this time, I ______ (travel) to London.", a:["will be traveling","will be travelling"]},
+  {q:"By 2030, I ______ (finish) university.", a:["will have finished"]},
+  {q:"She ______ (not / understand) the question.", a:["did not understand","didn't understand"]},
+  {q:"He ______ (always / forget) his keys.", a:["always forgets"]},
+  {q:"We ______ (be) friends since 2010.", a:["have been"]},
+  {q:"Listen! The birds ______ (sing).", a:["are singing"]},
+  {q:"I ______ (not / see) her yesterday.", a:["did not see","didn't see"]},
+  {q:"By the time you get home, I ______ (leave).", a:["will have left"]},
+  {q:"She ______ (wash) the car every Saturday.", a:["washes"]},
+  {q:"I ______ (not / finish) my homework yet.", a:["have not finished","haven't finished"]},
+  {q:"They ______ (arrive) at 8 o’clock yesterday.", a:["arrived"]},
+  {q:"He ______ (not / play) football now.", a:["is not playing","isn't playing"]},
+  {q:"By next week, we ______ (complete) the task.", a:["will have completed"]},
+  {q:"She ______ (go) to school every day.", a:["goes"]},
+  {q:"I ______ (do) my homework at the moment.", a:["am doing"]},
+  {q:"We ______ (already / eat) lunch.", a:["have already eaten"]},
+  {q:"They ______ (not / watch) TV yesterday.", a:["did not watch","didn't watch"]},
+  {q:"By 2025, he ______ (move) to London.", a:["will have moved"]},
+  {q:"He ______ (work) in this company since 2018.", a:["has worked"]},
+  {q:"Look! The cat ______ (sleep) on the sofa.", a:["is sleeping"]},
+  {q:"She ______ (not / call) me yet.", a:["has not called","hasn't called"]},
+  {q:"We ______ (visit) Paris last summer.", a:["visited"]},
+  {q:"By this time tomorrow, I ______ (fly) to New York.", a:["will be flying"]},
+  {q:"He ______ (not / eat) meat.", a:["does not eat","doesn't eat"]},
+  {q:"They ______ (wait) for you since 5 o’clock.", a:["have been waiting"]},
+  {q:"It ______ (rain) yesterday.", a:["rained"]},
+  {q:"I ______ (not / go) there before.", a:["have not gone","haven't gone"]},
+  {q:"She ______ (cook) dinner now.", a:["is cooking"]},
+  {q:"By the end of this month, I ______ (save) enough money.", a:["will have saved"]},
+  {q:"We ______ (live) here since childhood.", a:["have lived"]},
+  {q:"He ______ (be) tired yesterday.", a:["was"]},
+  {q:"I ______ (finish) my project last week.", a:["finished"]},
+  {q:"They ______ (not / arrive) yet.", a:["have not arrived","haven't arrived"]},
+  {q:"By 2040, humans ______ (discover) new planets.", a:["will have discovered"]},
+  {q:"She ______ (go) shopping right now.", a:["is going"]},
+  {q:"He ______ (like) chocolate.", a:["likes"]},
+  {q:"They ______ (clean) the house every Sunday.", a:["clean"]},
+  {q:"We ______ (not / speak) since Monday.", a:["have not spoken","haven't spoken"]},
+  {q:"It ______ (snow) all night.", a:["snowed"]},
+  {q:"By 2035, she ______ (retire).", a:["will have retired"]},
+  {q:"He ______ (help) his father yesterday.", a:["helped"]},
+  {q:"I ______ (study) English every day.", a:["study"]},
+  {q:"She ______ (be) to Italy three times.", a:["has been"]},
+  {q:"We ______ (watch) TV at the moment.", a:["are watching"]},
+  {q:"They ______ (visit) us last weekend.", a:["visited"]},
+  {q:"By next month, we ______ (finish) everything.", a:["will have finished"]},
+  {q:"He ______ (not / work) today.", a:["is not working","isn't working"]},
+  {q:"I ______ (read) this book now.", a:["am reading"]},
+  {q:"We ______ (not / go) out yesterday.", a:["did not go","didn't go"]},
+  {q:"By next week, I ______ (learn) all the words.", a:["will have learned","will have learnt"]},
+  {q:"She ______ (wake) up early every morning.", a:["wakes"]},
+  {q:"They ______ (never / see) snow before.", a:["have never seen"]},
+  {q:"He ______ (drive) to work yesterday.", a:["drove"]},
+  {q:"I ______ (eat) breakfast now.", a:["am eating"]},
+  {q:"By 2030, I ______ (buy) a new house.", a:["will have bought"]},
+  {q:"She ______ (not / finish) her work yet.", a:["has not finished","hasn't finished"]},
+  {q:"We ______ (talk) when he came in.", a:["were talking"]},
+  {q:"It ______ (rain) at 7 o’clock yesterday.", a:["was raining"]},
+  {q:"He ______ (work) hard last week.", a:["worked"]},
+  {q:"By 2028, they ______ (open) a new store.", a:["will have opened"]},
+  {q:"She ______ (visit) her grandmother every weekend.", a:["visits"]},
+  {q:"I ______ (never / eat) sushi.", a:["have never eaten"]},
+  {q:"They ______ (run) in the park now.", a:["are running"]},
+  {q:"We ______ (not / call) you yesterday.", a:["did not call","didn't call"]},
+  {q:"By this time next year, I ______ (finish) my studies.", a:["will have finished"]},
+  {q:"He ______ (like) this movie.", a:["likes"]},
+  {q:"I ______ (have) breakfast every day.", a:["have"]},
+  {q:"She ______ (not / understand) it now.", a:["does not understand","doesn't understand"]},
+  {q:"They ______ (study) at the library now.", a:["are studying"]},
+  {q:"By the end of the year, we ______ (save) enough money.", a:["will have saved"]},
+  {q:"I ______ (wash) the dishes yesterday.", a:["washed"]},
+  {q:"He ______ (visit) London twice.", a:["has visited"]},
+  {q:"We ______ (play) football now.", a:["are playing"]},
+  {q:"She ______ (not / like) tea.", a:["does not like","doesn't like"]},
+  {q:"By 2050, scientists ______ (find) a cure for cancer.", a:["will have found"]},
+
+
+    {
+        "q": "I ______ (never / be) to Paris.",
+        "a": [
+            "have never been",
+            "i have never been"
+        ]
+    },
+    {
+        "q": "She ______ (go) to school every day.",
+        "a": [
+            "goes",
+            "she goes"
+        ]
+    },
+    {
+        "q": "They ______ (not / watch) TV now.",
+        "a": [
+            "are not watching",
+            "they are not watching"
+        ]
+    },
+    {
+        "q": "We ______ (visit) our grandparents last weekend.",
+        "a": [
+            "visited",
+            "we visited"
+        ]
+    },
+    {
+        "q": "He ______ (not / like) coffee.",
+        "a": [
+            "does not like",
+            "he does not like"
+        ]
+    },
+    {
+        "q": "Look! It ______ (snow) outside.",
+        "a": [
+            "is snowing",
+            "it is snowing"
+        ]
+    },
+    {
+        "q": "By next year, I ______ (finish) my studies.",
+        "a": [
+            "will have finished",
+            "i will have finished"
+        ]
+    },
+    {
+        "q": "She ______ (usually / read) a book before bed.",
+        "a": [
+            "usually reads",
+            "she usually reads"
+        ]
+    },
+    {
+        "q": "They ______ (live) here since 2010.",
+        "a": [
+            "have lived",
+            "they have lived"
+        ]
+    },
+    {
+        "q": "I ______ (not / go) to the party tomorrow.",
+        "a": [
+            "am not going",
+            "i am not going"
+        ]
+    },
+    {
+        "q": "We ______ (be) very tired yesterday.",
+        "a": [
+            "were",
+            "we were"
+        ]
+    },
+    {
+        "q": "My brother ______ (play) football every weekend.",
+        "a": [
+            "plays",
+            "he plays"
+        ]
+    },
+    {
+        "q": "Listen! The baby ______ (cry).",
+        "a": [
+            "is crying",
+            "the baby is crying"
+        ]
+    },
+    {
+        "q": "They ______ (not / finish) their homework yet.",
+        "a": [
+            "have not finished",
+            "they have not finished"
+        ]
+    },
+    {
+        "q": "When ______ (you / start) learning English?",
+        "a": [
+            "did you start"
+        ]
+    },
+    {
+        "q": "I ______ (go) to the cinema last night.",
+        "a": [
+            "went",
+            "i went"
+        ]
+    },
+    {
+        "q": "By this time tomorrow, we ______ (fly) to London.",
+        "a": [
+            "will be flying",
+            "we will be flying"
+        ]
+    },
+    {
+        "q": "She ______ (study) English for three years.",
+        "a": [
+            "has studied",
+            "she has studied"
+        ]
+    },
+    {
+        "q": "We ______ (not / see) each other for ages.",
+        "a": [
+            "have not seen",
+            "we have not seen"
+        ]
+    },
+    {
+        "q": "They ______ (play) tennis now.",
+        "a": [
+            "are playing",
+            "they are playing"
+        ]
+    },
+    {
+        "q": "I ______ (not / understand) this exercise.",
+        "a": [
+            "do not understand",
+            "i do not understand"
+        ]
+    },
+    {
+        "q": "What ______ (you / do) yesterday?",
+        "a": [
+            "did you do"
+        ]
+    },
+    {
+        "q": "She ______ (cook) dinner at the moment.",
+        "a": [
+            "is cooking",
+            "she is cooking"
+        ]
+    },
+    {
+        "q": "He ______ (never / eat) sushi before.",
+        "a": [
+            "has never eaten",
+            "he has never eaten"
+        ]
+    },
+    {
+        "q": "We ______ (already / finish) our project.",
+        "a": [
+            "have already finished",
+            "we have already finished"
+        ]
+    },
+    {
+        "q": "They ______ (go) to Italy next summer.",
+        "a": [
+            "are going",
+            "they are going"
+        ]
+    },
+    {
+        "q": "By 2026, I ______ (work) here for ten years.",
+        "a": [
+            "will have worked",
+            "i will have worked"
+        ]
+    },
+    {
+        "q": "She ______ (be) at home now.",
+        "a": [
+            "is",
+            "she is"
+        ]
+    },
+    {
+        "q": "He ______ (watch) TV every evening.",
+        "a": [
+            "watches",
+            "he watches"
+        ]
+    },
+    {
+        "q": "I ______ (not / see) him since Monday.",
+        "a": [
+            "have not seen",
+            "i have not seen"
+        ]
+    },
+    {
+        "q": "What ______ (you / do) right now?",
+        "a": [
+            "are you doing"
+        ]
+    },
+    {
+        "q": "We ______ (go) shopping every Saturday.",
+        "a": [
+            "go",
+            "we go"
+        ]
+    },
+    {
+        "q": "They ______ (not / go) out last night.",
+        "a": [
+            "did not go",
+            "they did not go"
+        ]
+    },
+    {
+        "q": "By the time you arrive, I ______ (finish) my homework.",
+        "a": [
+            "will have finished",
+            "i will have finished"
+        ]
+    },
+    {
+        "q": "She ______ (not / study) hard enough last week.",
+        "a": [
+            "did not study",
+            "she did not study"
+        ]
+    },
+    {
+        "q": "He ______ (work) at a bank since 2015.",
+        "a": [
+            "has worked",
+            "he has worked"
+        ]
+    },
+    {
+        "q": "We ______ (travel) to Spain next week.",
+        "a": [
+            "are traveling",
+            "we are traveling"
+        ]
+    },
+    {
+        "q": "They ______ (already / eat) breakfast.",
+        "a": [
+            "have already eaten",
+            "they have already eaten"
+        ]
+    },
+    {
+        "q": "She ______ (not / like) swimming.",
+        "a": [
+            "does not like",
+            "she does not like"
+        ]
+    },
+    {
+        "q": "I ______ (be) born in 2005.",
+        "a": [
+            "was born",
+            "i was born"
+        ]
+    },
+    {
+        "q": "He ______ (fix) his car at the moment.",
+        "a": [
+            "is fixing",
+            "he is fixing"
+        ]
+    },
+    {
+        "q": "We ______ (go) to London last summer.",
+        "a": [
+            "went",
+            "we went"
+        ]
+    },
+    {
+        "q": "They ______ (never / see) snow before.",
+        "a": [
+            "have never seen",
+            "they have never seen"
+        ]
+    },
+    {
+        "q": "I ______ (read) this book twice.",
+        "a": [
+            "have read",
+            "i have read"
+        ]
+    },
+    {
+        "q": "What ______ (you / plan) for tomorrow?",
+        "a": [
+            "are you planning"
+        ]
+    },
+    {
+        "q": "She ______ (not / visit) her parents for a long time.",
+        "a": [
+            "has not visited",
+            "she has not visited"
+        ]
+    },
+    {
+        "q": "They ______ (build) a new house next year.",
+        "a": [
+            "will build",
+            "they will build"
+        ]
+    },
+    {
+        "q": "We ______ (study) when you called.",
+        "a": [
+            "were studying",
+            "we were studying"
+        ]
+    },
+    {
+        "q": "He ______ (not / eat) meat.",
+        "a": [
+            "does not eat",
+            "he does not eat"
+        ]
+    },
+    {
+        "q": "By 2030, humans ______ (live) on Mars.",
+        "a": [
+            "will have lived",
+            "humans will have lived"
+        ]
+    }
+
+];
+// ======== vége kérdésbank ========
+
+const pageSize = 5;
+let shuffled = [];
+let currentPage = 0;
+let checkedPages = {}; // pageIndex -> {correct, total, wrongItems: []}
+let totalAttempted = 0;
+let totalCorrect = 0;
+
+function shuffleArray(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function initTest(){
+  shuffled = shuffleArray(allQuestions);
+  currentPage = 0;
+  checkedPages = {};
+  totalAttempted = 0;
+  totalCorrect = 0;
+  renderPage();
+  updateStats();
+  document.getElementById('finalResult').style.display = 'none';
+  document.getElementById('finalResult').innerHTML = '';
+}
+
+function renderPage(){
+  const quizArea = document.getElementById('quizArea');
+  quizArea.innerHTML = '';
+  const totalPages = Math.ceil(shuffled.length / pageSize);
+  const pageInfo = document.getElementById('pageInfo');
+  pageInfo.textContent = `Oldal: ${currentPage+1} / ${totalPages}`;
+  const usedInfo = document.getElementById('usedInfo');
+  usedInfo.textContent = `Megjelenített kérdések: ${Math.min((currentPage+1)*pageSize, shuffled.length)} / ${shuffled.length}`;
+
+  const start = currentPage * pageSize;
+  for(let i=0;i<pageSize;i++){
+    const idx = start + i;
+    if(idx >= shuffled.length) break;
+    const item = shuffled[idx];
+    const container = document.createElement('div');
+    container.className = 'q';
+    container.id = 'item-'+idx;
+    const qnum = document.createElement('div');
+    qnum.innerHTML = `<strong>${idx+1}.</strong> ${item.q}`;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = 'q-'+idx;
+    input.autocomplete = 'off';
+    if(checkedPages[currentPage] && checkedPages[currentPage].answeredIds && checkedPages[currentPage].answeredIds.includes(idx)){
+      input.disabled = true;
+    }
+    container.appendChild(qnum);
+    container.appendChild(document.createElement('br'));
+    container.appendChild(document.createElement('br'));
+    container.appendChild(input);
+    quizArea.appendChild(container);
+  }
+}
+
+function normalize(s){
+  return (s||'').trim().toLowerCase().replace(/\s+/g,' ');
+}
+
+function checkCurrentPage(){
+  const start = currentPage * pageSize;
+  let localCorrect = 0;
+  let localTotal = 0;
+  let localWrongItems = [];
+  for(let i=0;i<pageSize;i++){
+    const idx = start + i;
+    if(idx >= shuffled.length) break;
+    const input = document.getElementById('q-'+idx);
+    const container = document.getElementById('item-'+idx);
+    const possible = shuffled[idx].a; // array of acceptable answers
+    const correctAnswers = Array.isArray(possible) ? possible : [possible];
+    const normCorrects = correctAnswers.map(normalize);
+    const userRaw = (input.value||'').trim();
+    const user = normalize(userRaw);
+    localTotal++;
+    if(normCorrects.includes(user)){
+      container.classList.add('correct');
+      localCorrect++;
+      input.disabled = true;
+    } else {
+      container.classList.add('wrong');
+      // show correct answer(s) appended
+      input.value = (input.value||'') + ' → ' + correctAnswers[0];
+      input.disabled = true;
+      localWrongItems.push({
+        index: idx+1,
+        q: shuffled[idx].q,
+        your: userRaw,
+        correct: correctAnswers[0]
+      });
+    }
+  }
+  if(!checkedPages[currentPage]){
+    checkedPages[currentPage] = {correct: localCorrect, total: localTotal, wrongItems: localWrongItems, answeredIds: []};
+    for(let i=0;i<localTotal;i++){ checkedPages[currentPage].answeredIds.push(start+i); }
+    totalAttempted += localTotal;
+    totalCorrect += localCorrect;
+  }
+  updateStats();
+}
+
+function updateStats(){
+  document.getElementById('totalSolved').textContent = totalAttempted;
+  document.getElementById('totalCorrect').textContent = totalCorrect;
+  const percent = totalAttempted === 0 ? 0 : Math.round((totalCorrect / totalAttempted) * 100);
+  document.getElementById('percent').textContent = percent + '%';
+}
+
+function nextPage(){
+  const totalPages = Math.ceil(shuffled.length / pageSize);
+  if(currentPage < totalPages - 1){
+    currentPage++;
+    renderPage();
+  } else {
+    alert('Ez volt az utolsó oldal. Kattints Új teszt-re, ha új kérdéssort szeretnél.');
+  }
+}
+
+function finishTest(){
+  // Compile overall results and list wrong answers from checkedPages
+  let wrongAll = [];
+  for(const p in checkedPages){
+    if(checkedPages[p].wrongItems && checkedPages[p].wrongItems.length){
+      wrongAll = wrongAll.concat(checkedPages[p].wrongItems);
+    }
+  }
+  const finalDiv = document.getElementById('finalResult');
+  finalDiv.style.display = 'block';
+  const percent = totalAttempted === 0 ? 0 : Math.round((totalCorrect / totalAttempted) * 100);
+  finalDiv.innerHTML = `<h3>Összegzés</h3>
+    <p><strong>Összesen:</strong> ${totalAttempted} kérdésből ${totalCorrect} helyes (${percent}%).</p>`;
+  if(wrongAll.length){
+    finalDiv.innerHTML += '<h4>Hibás válaszok:</h4><div class="wrongList">';
+    wrongAll.forEach((w, i) => {
+      finalDiv.innerHTML += `<p><strong>${i+1}.</strong> ${w.q}<br><strong>Te:</strong> ${w.your || '(üres)'}<br><strong>Helyes:</strong> ${w.correct}</p>`;
+    });
+    finalDiv.innerHTML += '</div>';
+  } else {
+    finalDiv.innerHTML += '<p>Gratulálok! Minden megválaszolt kérdés helyes volt.</p>';
+  }
+  // Újrakezdés gomb
+  finalDiv.innerHTML += '<p><button id="restartBtn">Újrakezdem</button></p>';
+  document.getElementById('restartBtn').addEventListener('click', initTest);
+}
+
+document.getElementById('checkBtn').addEventListener('click', checkCurrentPage);
+document.getElementById('nextBtn').addEventListener('click', nextPage);
+document.getElementById('newBtn').addEventListener('click', function(){ if(confirm('Új teszt? Az eddigi statisztika törlődik.')) initTest(); });
+document.getElementById('finishBtn').addEventListener('click', finishTest);
+
+// init
+initTest();
+</script>
+</body>
+</html>
