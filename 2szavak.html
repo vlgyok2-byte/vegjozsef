@@ -1,0 +1,6183 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<title>Kétválasztásos Angol Szó Kvíz</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #eef;
+  margin: 2rem;
+}
+h1 {
+  text-align: center;
+}
+#quiz, #result {
+  max-width: 600px;
+  margin: auto;
+  padding: 1rem;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #aaa;
+}
+button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: none;
+  background-color: #4477cc;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.option {
+  display: block;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  background: #f4f4f4;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.option:hover {
+  background: #e0e0e0;
+}
+.feedback {
+  margin-top: 1rem;
+  font-weight: bold;
+}
+.home-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 50px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  text-decoration: none;
+}
+.home-button:hover {
+  background: #1e7e34;
+}
+.wrong {
+  color: red;
+  font-weight: bold;
+}
+.correct {
+  color: green;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+<h1>Kétválasztásos Angol Szó Kvíz</h1>
+
+<div id="quiz">
+  <p id="question"></p>
+  <div id="options"></div>
+  <p class="feedback" id="feedback"></p>
+  <button onclick="nextQuestion()">Következő</button>
+  <button onclick="endQuiz()">Befejezem</button>
+</div>
+
+<div id="result" style="display:none;"></div>
+
+<a href="index.html" class="home-button">🏠 Főoldal</a>
+
+<script>
+const questions = [
+
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "car"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "time"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "student"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "sister"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "city"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "street"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "drink"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "dog"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "shop"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "water"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "night"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "mother"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "father"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "mother"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "garden"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "plane"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "sister"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "money"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "father"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "plane"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "window"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "food"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "drink"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "plane"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "food"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "sea"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "student"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "student"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "table"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "forest"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "day"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "school"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "house"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "train"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "movie"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "dog"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "table"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "work"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "music"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "mother"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "music"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "bus"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "brother"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "water"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "dog"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "student"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "time"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "sea"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "plane"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "sister"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "train"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "house"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "night"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "sea"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "city"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "sister"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "chair"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "shop"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "brother"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "forest"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "dog"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "shop"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "student"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "student"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "movie"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "forest"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "street"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "table"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "shop"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "car"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "water"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "movie"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "garden"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "garden"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "work"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "bus"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "dog"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "night"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "window"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "plane"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "movie"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "train"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "music"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "mother"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "cat"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "window"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "forest"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "food"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "brother"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "drink"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "window"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "car"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "chair"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "mother"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "money"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "house"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "chair"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "chair"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "chair"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "work"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "brother"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "sister"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "water"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "street"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "day"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "money"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "chair"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "table"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "door"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "school"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "house"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "table"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "friend"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "mother"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "car"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "music"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "work"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "movie"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "book"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "dog"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "movie"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "bus"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "table"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "food"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "time"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "car"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "cat"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "day"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "plane"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "movie"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "water"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "garden"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "train"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "window"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "door"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "water"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "forest"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "brother"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "cat"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "brother"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "shop"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "book"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "night"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "music"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "sister"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "student"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "cat"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "car"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "music"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "garden"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "drink"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "drink"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "drink"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "chair"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "money"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "forest"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "city"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "sister"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "house"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "garden"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "money"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "father"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "train"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "music"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "day"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "food"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "drink"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "shop"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "city"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "night"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "street"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "time"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "plane"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "dog"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "plane"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "drink"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "window"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "sea"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "dog"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "window"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "day"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "food"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "city"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "car"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "friend"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "night"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "friend"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "water"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "door"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "house"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "mother"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "brother"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "father"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "table"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "window"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "train"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "sister"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "shop"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "drink"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "house"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "water"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "movie"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "garden"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "friend"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "mother"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "food"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "city"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "drink"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "chair"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "friend"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "bus"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "garden"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "drink"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "brother"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "shop"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "work"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "work"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "mother"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "work"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "movie"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "dog"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "school"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "street"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "movie"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "brother"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "train"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "drink"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "movie"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "money"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "train"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "street"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "brother"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "cat"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "train"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "fire"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "door"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "city"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "time"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "brother"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "friend"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "mother"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "forest"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "window"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "friend"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "movie"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "dog"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "window"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "drink"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "train"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "movie"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "movie"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "student"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "work"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "door"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "money"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "shop"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "book"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "night"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "night"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "brother"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "student"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "shop"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "movie"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "car"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "book"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "train"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "bus"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "water"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "sea"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "chair"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "work"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "sister"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "sister"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "city"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "book"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "sister"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "chair"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "dog"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "sister"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "mother"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "time"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "chair"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "shop"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "time"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "mother"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "food"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "work"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "school"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "train"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "student"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "dog"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "school"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "work"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "mother"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "book"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "door"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "cat"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "table"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "shop"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "fire"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "street"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "bus"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "father"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "fire"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "chair"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "shop"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "night"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "money"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "music"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "drink"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "money"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "plane"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "city"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "car"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "window"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "dog"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "friend"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "chair"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "food"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "door"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "work"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "city"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "book"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "house"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "school"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "food"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "food"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "father"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "friend"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "cat"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "book"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "door"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "night"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "forest"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "food"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "school"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "forest"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "bus"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "time"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "mother"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "house"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "shop"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "cat"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "fire"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "work"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "garden"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "sea"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "sister"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "house"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "train"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "table"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "door"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "money"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "mother"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "book"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "friend"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "forest"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "bus"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "cat"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "drink"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "brother"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "table"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "work"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "food"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "school"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "book"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "sister"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "money"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "water"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "sea"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "cat"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "car"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "drink"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "work"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "night"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "school"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "cat"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "mother"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "forest"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "car"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "sister"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "sister"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "train"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "friend"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "city"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "time"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "fire"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "work"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "sister"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "student"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "city"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "door"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "day"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "time"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "forest"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "dog"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "plane"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "movie"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "cat"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "fire"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "bus"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "garden"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "money"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "book"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "house"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "drink"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "mother"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "sister"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "dog"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "sister"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "city"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "time"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "door"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "cat"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "car"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "fire"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "plane"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "house"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "money"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "student"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "work"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "student"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "bus"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "music"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "brother"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "table"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "city"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "window"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "day"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "train"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "day"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "friend"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "door"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "music"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "day"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "work"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "time"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "shop"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "sea"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "friend"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "train"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "window"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "time"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "book"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "shop"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "garden"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "brother"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "dog"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "chair"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "table"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "window"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "work"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "day"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "food"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "school"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "book"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "table"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "mother"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "street"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "dog"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "table"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "city"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "sea"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "day"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "bus"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "cat"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "school"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "street"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "night"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "bus"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "window"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "bus"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "school"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "car"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "water"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "school"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "work"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "dog"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "brother"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "bus"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "cat"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "night"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "mother"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "movie"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "book"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "food"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "plane"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "food"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "night"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "train"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "day"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "dog"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "movie"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "sea"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "father"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "dog"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "cat"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "money"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "school"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "drink"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "street"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "drink"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "work"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "movie"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "window"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "day"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "brother"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "school"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "day"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "chair"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "forest"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "bus"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "friend"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "day"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "money"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "garden"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "street"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "father"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "chair"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "table"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "food"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "friend"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "work"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "cat"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "fire"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "mother"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "day"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "work"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "door"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "bus"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "friend"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "brother"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "time"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "music"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "father"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "school"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "brother"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "food"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "mother"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "work"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "house"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "father"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "food"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "time"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "house"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "garden"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "shop"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "money"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "train"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "student"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "cat"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "street"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "time"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "father"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "plane"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "street"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "garden"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "chair"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "window"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "car"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "shop"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "brother"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "friend"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "water"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "student"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "father"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "plane"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "house"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "bus"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "bus"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "money"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "money"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "book"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "chair"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "window"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "city"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "drink"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "book"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "father"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "door"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "music"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "time"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "sister"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "shop"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "window"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "house"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "cat"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "food"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "mother"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "father"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "fire"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "time"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "father"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "chair"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "house"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "brother"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "plane"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "window"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "shop"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "door"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "city"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "sister"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "chair"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "car"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "car"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "shop"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "dog"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "fire"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "forest"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "plane"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "friend"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "student"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "city"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "forest"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "shop"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "house"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "window"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "friend"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "drink"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "street"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "house"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "car"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "day"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "garden"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "water"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "mother"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "drink"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "house"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "cat"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "table"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "train"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "cat"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "school"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "movie"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "food"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "shop"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "father"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "bus"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "bus"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "movie"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "music"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "house"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "time"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "time"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "fire"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "sea"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "time"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "father"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "street"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "school"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "garden"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "father"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "brother"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "money"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "music"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "school"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "house"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "movie"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "shop"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "shop"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "dog"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "money"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "chair"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "fire"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "cat"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "father"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "dog"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "student"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "brother"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "table"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "friend"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "sea"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "city"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "plane"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "dog"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "train"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "train"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "day"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "shop"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "money"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "chair"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "music"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "movie"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "shop"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "shop"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "dog"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "work"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "bus"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "forest"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "money"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "chair"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "dog"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "food"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "water"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "door"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "car"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "drink"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "father"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "money"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "mother"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "door"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "car"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "shop"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "forest"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "garden"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "table"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "day"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "fire"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "dog"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "friend"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "car"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "father"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "city"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "brother"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "cat"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "music"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "drink"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "cat"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "cat"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "cat"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "sea"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "night"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "garden"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "student"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "garden"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "student"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "fire"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "table"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "shop"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "window"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "garden"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "door"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "mother"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "car"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "sea"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "father"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "table"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "plane"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "day"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "night"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "sea"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "time"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "sea"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "dog"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "garden"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "day"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "day"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "fire"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "garden"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "cat"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "garden"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "drink"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "forest"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "fire"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "bus"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "student"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "music"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "cat"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "garden"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "house"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "fire"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "mother"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "night"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "house"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "window"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "music"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "train"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "father"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "garden"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "fire"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "student"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "brother"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "car"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "car"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "bus"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "book"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "friend"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "food"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "forest"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "food"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "fire"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "garden"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "work"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "garden"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "father"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "time"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "school"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "school"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "city"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "father"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "shop"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "money"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "car"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "night"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "table"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "bus"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "student"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "music"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "window"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "night"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "cat"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "table"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "city"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "day"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "day"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "book"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "chair"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "bus"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "mother"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "time"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "day"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "chair"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "street"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "cat"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "car"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "friend"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "movie"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "fire"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "day"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "father"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "dog"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "house"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "train"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "dog"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "window"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "time"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "movie"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "work"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "table"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "father"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "movie"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "mother"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "door"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "street"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "mother"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "bus"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "music"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "book"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "movie"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "drink"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "cat"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "drink"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "plane"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "student"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "table"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "house"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "brother"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "dog"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "car"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "dog"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "money"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "father"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "car"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "door"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "water"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "school"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "mother"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "drink"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "book"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "door"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "night"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "door"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "time"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "fire"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "money"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "school"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "bus"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "chair"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "window"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "book"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "mother"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "forest"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "plane"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "forest"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "car"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "fire"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "window"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "sea"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "father"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "time"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "food"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "food"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "chair"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "train"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "shop"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "table"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "train"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "money"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "fire"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "cat"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "garden"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "chair"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "car"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "chair"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "water"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "book"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "school"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "sister"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "student"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "house"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "father"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "food"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "food"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "plane"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "time"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "dog"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "music"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "student"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "work"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "school"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "student"
+  },
+  {
+    "hu": "tenger",
+    "correct": "sea",
+    "wrong": "food"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "dog"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "work"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "sea"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "work"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "book"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "dog"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "night"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "movie"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "school"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "water"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "sister"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "table"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "dog"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "movie"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "dog"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "cat"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "sea"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "dog"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "forest"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "water"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "fire"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "friend"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "book"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "street"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "door"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "student"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "book"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "plane"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "table"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "food"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "house"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "school"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "day"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "student"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "plane"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "food"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "book"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "cat"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "house"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "door"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "forest"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "plane"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "fire"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "fire"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "shop"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "sea"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "train"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "fire"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "cat"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "mother"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "friend"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "city"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "garden"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "street"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "car"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "car"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "street"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "friend"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "mother"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "dog"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "work"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "water"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "street"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "street"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "dog"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "night"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "garden"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "water"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "street"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "plane"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "plane"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "sea"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "dog"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "garden"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "student"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "drink"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "train"
+  },
+  {
+    "hu": "erdő",
+    "correct": "forest",
+    "wrong": "student"
+  },
+  {
+    "hu": "apa",
+    "correct": "father",
+    "wrong": "door"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "sea"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "friend"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "dog"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "street"
+  },
+  {
+    "hu": "nap",
+    "correct": "day",
+    "wrong": "brother"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "friend"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "father"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "car"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "fire"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "window"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "dog"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "music"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "father"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "father"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "school"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "drink"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "bus"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "car"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "day"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "music"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "music"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "window"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "train"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "brother"
+  },
+  {
+    "hu": "könyv",
+    "correct": "book",
+    "wrong": "cat"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "water"
+  },
+  {
+    "hu": "bicikli",
+    "correct": "bicycle",
+    "wrong": "forest"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "mountain"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "time"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "forest"
+  },
+  {
+    "hu": "ajtó",
+    "correct": "door",
+    "wrong": "car"
+  },
+  {
+    "hu": "busz",
+    "correct": "bus",
+    "wrong": "music"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "brother"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "forest"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "train"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "house"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "train"
+  },
+  {
+    "hu": "bolt",
+    "correct": "shop",
+    "wrong": "day"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "dog"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "plane"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "train"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "street"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "mother"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "street"
+  },
+  {
+    "hu": "zene",
+    "correct": "music",
+    "wrong": "fire"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "shop"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "dog"
+  },
+  {
+    "hu": "testvér",
+    "correct": "brother",
+    "wrong": "bicycle"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "shop"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "chair"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "chair"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "student"
+  },
+  {
+    "hu": "étel",
+    "correct": "food",
+    "wrong": "time"
+  },
+  {
+    "hu": "hegy",
+    "correct": "mountain",
+    "wrong": "time"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "house"
+  },
+  {
+    "hu": "munka",
+    "correct": "work",
+    "wrong": "friend"
+  },
+  {
+    "hu": "tanár",
+    "correct": "teacher",
+    "wrong": "time"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "forest"
+  },
+  {
+    "hu": "iskola",
+    "correct": "school",
+    "wrong": "night"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "car"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "day"
+  },
+  {
+    "hu": "ital",
+    "correct": "drink",
+    "wrong": "plane"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "city"
+  },
+  {
+    "hu": "nővér",
+    "correct": "sister",
+    "wrong": "shop"
+  },
+  {
+    "hu": "film",
+    "correct": "movie",
+    "wrong": "chair"
+  },
+  {
+    "hu": "vonat",
+    "correct": "train",
+    "wrong": "teacher"
+  },
+  {
+    "hu": "éj",
+    "correct": "night",
+    "wrong": "food"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "drink"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "bus"
+  },
+  {
+    "hu": "autó",
+    "correct": "car",
+    "wrong": "cat"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "music"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "movie"
+  },
+  {
+    "hu": "kert",
+    "correct": "garden",
+    "wrong": "cat"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "music"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "time"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "bridge"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "fire"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "sister"
+  },
+  {
+    "hu": "barát",
+    "correct": "friend",
+    "wrong": "fire"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "forest"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "book"
+  },
+  {
+    "hu": "szék",
+    "correct": "chair",
+    "wrong": "door"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "garden"
+  },
+  {
+    "hu": "diák",
+    "correct": "student",
+    "wrong": "window"
+  },
+  {
+    "hu": "utca",
+    "correct": "street",
+    "wrong": "drink"
+  },
+  {
+    "hu": "tűz",
+    "correct": "fire",
+    "wrong": "garden"
+  },
+  {
+    "hu": "ház",
+    "correct": "house",
+    "wrong": "car"
+  },
+  {
+    "hu": "idő",
+    "correct": "time",
+    "wrong": "plane"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "food"
+  },
+  {
+    "hu": "város",
+    "correct": "city",
+    "wrong": "shop"
+  },
+  {
+    "hu": "víz",
+    "correct": "water",
+    "wrong": "street"
+  },
+  {
+    "hu": "pénz",
+    "correct": "money",
+    "wrong": "window"
+  },
+  {
+    "hu": "ablak",
+    "correct": "window",
+    "wrong": "movie"
+  },
+  {
+    "hu": "macska",
+    "correct": "cat",
+    "wrong": "house"
+  },
+  {
+    "hu": "híd",
+    "correct": "bridge",
+    "wrong": "drink"
+  },
+  {
+    "hu": "kutya",
+    "correct": "dog",
+    "wrong": "city"
+  },
+  {
+    "hu": "asztal",
+    "correct": "table",
+    "wrong": "father"
+  },
+  {
+    "hu": "repülő",
+    "correct": "plane",
+    "wrong": "brother"
+  },
+  {
+    "hu": "anya",
+    "correct": "mother",
+    "wrong": "window"
+  }
+
+
+
+
+];
+
+function shuffle(array) {
+  let currentIndex = array.length, randomIndex;
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+    [array[currentIndex], array[randomIndex]] =
+      [array[randomIndex], array[currentIndex]];
+  }
+  return array;
+}
+
+let qlist = shuffle([...questions]);
+let current = 0;
+let score = 0;
+let shown = 0;
+let wrongAnswers = []; // Hibák tárolására
+
+function speak(word) {
+  const u = new SpeechSynthesisUtterance(word);
+  u.lang = "en-US";
+  speechSynthesis.speak(u);
+}
+
+function showQuestion() {
+  document.getElementById('feedback').textContent = "";
+  const q = qlist[current];
+  document.getElementById('question').textContent = `${current + 1}. ${q.hu}`;
+  let opts = Math.random() < 0.5 ? [q.correct, q.wrong] : [q.wrong, q.correct];
+  const html = opts.map(opt =>
+    `<div class="option" onclick="checkAnswer('${opt}', '${q.correct}', '${q.hu}', '${opt}', '${q.correct}')">${opt}</div>`
+  ).join('');
+  document.getElementById('options').innerHTML = html;
+}
+
+function checkAnswer(sel, correct, hu, wrongWord, correctWord) {
+  const fb = document.getElementById('feedback');
+  if (sel === correct) {
+    fb.textContent = "✔️ Helyes!";
+    fb.style.color = "green";
+    score++;
+  } else {
+    fb.textContent = `❌ Helytelen! A helyes válasz: ${correct}`;
+    wrongAnswers.push({hu: hu, wrong: wrongWord, correct: correctWord});
+    fb.style.color = "red";
+  }
+  shown++;
+  speak(sel);
+  document.querySelectorAll('.option').forEach(o => o.onclick = null);
+}
+
+function nextQuestion() {
+  current++;
+  if (current < qlist.length) {
+    showQuestion();
+  } else {
+    endQuiz();
+  }
+}
+
+function endQuiz() {
+  document.getElementById('quiz').style.display = 'none';
+  const percent = shown > 0 ? Math.round((score / shown) * 100) : 0;
+  let wrongList = "";
+  if (wrongAnswers.length > 0) {
+    wrongList = "<h3>Hibás válaszok:</h3><ul>" +
+      wrongAnswers.map(w =>
+        `<li>${w.hu} - <span class="wrong">helytelen: ${w.wrong}</span>, <span class="correct">helyes: ${w.correct}</span></li>`
+      ).join("") +
+      "</ul>";
+  }
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('result').innerHTML = `
+    <h2>Eredmény</h2>
+    <p>Helyes válaszok: ${score} / ${shown}</p>
+    <p>Teljesítmény: ${percent}%</p>
+    ${wrongList}
+  `;
+}
+
+showQuestion();
+</script>
+
+</body>
+</html>
