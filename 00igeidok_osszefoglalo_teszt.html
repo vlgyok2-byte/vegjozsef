@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Igeidők — gyakorló teszt (véletlensor, statisztika)</title>
+  <style>
+    :root{--bg:#f6f8fb;--card:#fff;--accent:#0b74de;--muted:#666}
+    body{font-family:Inter,ui-sans-serif,system-ui,Roboto,Arial;margin:18px;background:var(--bg);color:#111}
+    h1{color:var(--accent);margin:0 0 6px;font-size:1.6rem}
+    .card{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(12,24,40,.06);margin-bottom:12px;max-width:900px}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    button{background:var(--accent);color:white;border:none;padding:10px 14px;border-radius:8px;cursor:pointer}
+    button.ghost{background:#e9f2ff;color:var(--accent);border:1px solid #cfe4ff}
+    .qcard{padding:12px;border-radius:8px;background:linear-gradient(180deg,#fff,#fbfdff);margin-bottom:10px}
+    input[type=text]{padding:8px;border-radius:6px;border:1px solid #d1d7e0;width:100%;max-width:640px}
+    .translation{font-style:italic;color:#555;margin-top:6px}
+    .explain{background:#f0f8ff;padding:10px;border-left:4px solid var(--accent);border-radius:6px;margin-top:8px;display:none}
+    .correct{border-left:6px solid #43b77a;background:#f0fff4}
+    .wrong{border-left:6px solid #f26b6b;background:#fff5f5}
+    #summary{display:none;margin-top:12px;padding:12px;background:#fff;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.04)}
+    .wrongList p{margin:8px 0;padding:8px;background:#fff5f5;border-radius:6px}
+    .statsRow{display:flex;gap:12px;flex-wrap:wrap}
+  </style>
+</head>
+<body>
+  <h1>Igeidők — gyakorló teszt</h1>
+  <p style="color:var(--muted)">A kérdések véletlenszerű sorrendben jelennek meg. Minden „Következő” kattintással új kérdés jelenik meg az előzők alatt. A „Befejezem” gomb összesíti az eredményt és megmutatja a javított válaszokat.</p>
+
+  <div class="card" id="mainCard">
+    <div class="controls">
+      <button id="nextBtn">Következő kérdés</button>
+      <button id="finishBtn" class="ghost">Befejezem</button>
+      <label style="margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--muted)"><input type="checkbox" id="shuffleToggle"> Véletlenszerű sorrend</label>
+    </div>
+
+    <div id="quizArea"></div>
+
+    <div id="summary" class="card">
+      <h3>Összegzés</h3>
+      <div class="statsRow">
+        <div><strong>Összes megkérdezett:</strong> <span id="totalAsked">0</span></div>
+        <div><strong>Megválaszolt:</strong> <span id="answered">0</span></div>
+        <div><strong>Helyes:</strong> <span id="correct">0</span></div>
+        <div><strong>Százalék:</strong> <span id="percent">0%</span></div>
+      </div>
+      <div id="wrongBlock"></div>
+      <div style="margin-top:10px"><button id="restartBtn" class="ghost">Újra</button></div>
+    </div>
+
+  </div>
+
+<script>
+/* ====== kérdések ======
+   Minden tétel tartalmaz: q (szöveg), a (helyes válaszok tömbje), hu (magyar mondat), explain (részletes magyarázat + képzés)
+   A Future Perfect Continuous kérdések külön is szerepelnek.
+*/
+const QUESTIONS = [
+  { q: "I ______ (play) football every Sunday.", a: ["play"], hu: "Minden vasárnap focizom.", explain: "Present Simple — szokások. Képzése: alapalak (3. személyhez -s)." },
+  { q: "She ______ (be) at school now.", a: ["is"], hu: "Most az iskolában van.", explain: "Present Simple (állapot) — 'be' ige: am/is/are." },
+  { q: "I ______ (read) now.", a: ["am reading","i am reading"], hu: "Most olvasok.", explain: "Present Continuous — am/is/are + -ing; folyamatos cselekvés." },
+  { q: "We ______ (go) to the cinema yesterday evening.", a: ["went"], hu: "Tegnap este moziba mentünk.", explain: "Past Simple — múltbeli egyszeri esemény. Képzése: ige múlt alakja (went)." },
+  { q: "They ______ (visit) us last weekend.", a: ["visited"], hu: "Múlt hétvégén meglátogattak minket.", explain: "Past Simple — befejezett múlt." },
+  { q: "I ______ (study) for two hours.", a: ["have been studying","i have been studying"], hu: "Két órája tanulok.", explain: "Present Perfect Continuous — have/has been + -ing; a folyamat időtartama a hangsúlyos." },
+  { q: "By the time you arrive, I ______ (finish) my homework.", a: ["will have finished"], hu: "Mire megérkezel, be fogom fejezni a házit.", explain: "Future Perfect — will have + ige 3. alakja; befejezett cselekvés egy jövőbeli időpont előtt." },
+  { q: "I ______ (have) breakfast before I left.", a: ["had had"], hu: "Reggeliztem, mielőtt elmentem.", explain: "Past Perfect — had + past participle; a korábbi múltbeli esemény." },
+  { q: "I ______ (be) happy to see you tomorrow.", a: ["will be"], hu: "Örülni fogok, hogy holnap látlak.", explain: "Future Simple — will + ige." },
+  { q: "I ______ (study) at 8 pm tomorrow.", a: ["will be studying"], hu: "Holnap este 8-kor tanulni fogok.", explain: "Future Continuous — will be + -ing; jövőbeni folyamat egy adott időpontban." },
+
+  // Future Perfect Continuous tételek (3 példa)
+  { q: "By next year, I ______ (work) here for five years.", a: ["will have been working"], hu: "Jövő évre már öt éve fogok itt dolgozni.", explain: "Future Perfect Continuous — will have been + -ing; hangsúlyozza a folyamat időtartamát egy jövőbeli pontig." },
+  { q: "When you arrive, she ______ (study) for two hours.", a: ["will have been studying"], hu: "Mire megérkezel, két órája fog tanulni.", explain: "Future Perfect Continuous — a cselekvés egy jövőbeli időpontig folyamatosan zajlik; képzése: will have been + -ing." },
+  { q: "By 2030, they ______ (live) in London for ten years.", a: ["will have been living"], hu: "2030-ra már tíz éve fognak Londonban élni.", explain: "Future Perfect Continuous — jövőbeli befejezett folyamatos; hangsúly a hosszúságon." },
+
+  // néhány további vegyes tétel
+  { q: "She ______ (work) every day.", a: ["works"], hu: "Mindennap dolgozik.", explain: "Present Simple — szokás." },
+  { q: "He ______ (not / go) to school yesterday.", a: ["did not go","didn't go"], hu: "Tegnap nem ment iskolába.", explain: "Past Simple (tagadás): did not + alapige." },
+  { q: "They ______ (visit) us last weekend.", a: ["visited"], hu: "Múlt hétvégén meglátogattak minket.", explain: "Past Simple." },
+  { q: "I ______ (never / be) to Paris.", a: ["have never been"], hu: "Sohasem voltam Párizsban.", explain: "Present Perfect (élet tapasztalat): have + past participle." }
+];
+
+let pool = [];        // a tényleges kérdéslista (shuffled vagy eredeti)
+let shown = [];       // megjelenített indexek a pool-ban
+let answers = {};     // index -> user answer
+let shuffleOn = true;
+
+// Utility
+function normalize(s){ return (s||'').trim().toLowerCase().replace(/\s+/g,' '); }
+
+function shuffle(a){
+  const b = a.slice();
+  for(let i=b.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [b[i],b[j]]=[b[j],b[i]];
+  }
+  return b;
+}
+
+// init pool
+function preparePool(){
+  pool = QUESTIONS.map((q,i)=> ({...q, origIndex:i}) );
+  if(document.getElementById('shuffleToggle').checked) pool = shuffle(pool);
+  shown = [];
+  answers = {};
+  document.getElementById('quizArea').innerHTML = '';
+  document.getElementById('summary').style.display = 'none';
+  updateCounts();
+}
+
+// render next question (append)
+function renderNext(){
+  if(pool.length===0) preparePool();
+  const nextIndex = shown.length;
+  if(nextIndex >= pool.length){
+    alert('Már nincs több kérdés a listában.');
+    return;
+  }
+  const item = pool[nextIndex];
+  const id = 'q'+nextIndex;
+  const container = document.createElement('div');
+  container.className = 'qcard';
+  container.id = 'card-'+nextIndex;
+  container.innerHTML = `
+    <div><strong>${nextIndex+1}.</strong> ${item.q}</div>
+    <div class="translation">${item.hu}</div>
+    <div style="margin-top:8px"><input type="text" id="${id}" placeholder="Írd be a választ..."></div>
+    <div style="margin-top:8px"><button onclick="checkSingle(${nextIndex})" type="button">Ellenőrzés</button></div>
+    <div id="exp-${nextIndex}" class="explain"></div>
+  `;
+  document.getElementById('quizArea').appendChild(container);
+  shown.push(nextIndex);
+  updateCounts();
+}
+
+// check single question (user can check per question)
+function checkSingle(idx){
+  const input = document.getElementById('q'+idx);
+  const userRaw = input.value;
+  const user = normalize(userRaw);
+  const corrects = pool[idx].a.map(normalize);
+  const expDiv = document.getElementById('exp-'+idx);
+  const card = document.getElementById('card-'+idx);
+  let ok = false;
+  if(corrects.includes(user)) ok = true;
+  answers[idx] = { user: userRaw, ok: ok, correct: pool[idx].a[0], q: pool[idx].q, hu: pool[idx].hu, explain: pool[idx].explain };
+  if(ok){
+    card.classList.remove('wrong'); card.classList.add('correct');
+    expDiv.style.display = 'block';
+    expDiv.innerHTML = `<strong style="color:green">Helyes.</strong> <div style="margin-top:6px">${pool[idx].explain}</div>`;
+  } else {
+    card.classList.remove('correct'); card.classList.add('wrong');
+    expDiv.style.display = 'block';
+    expDiv.innerHTML = `<strong style="color:red">Helytelen.</strong> Helyes válasz: <b>${pool[idx].a[0]}</b><div style="margin-top:6px">${pool[idx].explain}</div>`;
+  }
+  updateCounts();
+}
+
+// update stats counters (live)
+function updateCounts(){
+  const totalAsked = shown.length;
+  const answeredCount = Object.keys(answers).length;
+  const correctCount = Object.values(answers).filter(x=>x.ok).length;
+  document.getElementById('totalAsked').textContent = totalAsked;
+  document.getElementById('answered').textContent = answeredCount;
+  document.getElementById('correct').textContent = correctCount;
+  const pct = answeredCount === 0 ? 0 : Math.round((correctCount/answeredCount)*100);
+  document.getElementById('percent').textContent = pct + '%';
+}
+
+// finish — összesített statisztika és javítások
+function finishTest(){
+  // ensure any un-checked but with input are recorded
+  shown.forEach(idx=>{
+    if(!answers[idx]){
+      const userRaw = (document.getElementById('q'+idx)?.value||'').trim();
+      const user = normalize(userRaw);
+      const corrects = pool[idx].a.map(normalize);
+      const ok = corrects.includes(user);
+      answers[idx] = { user: userRaw, ok, correct: pool[idx].a[0], q: pool[idx].q, hu: pool[idx].hu, explain: pool[idx].explain };
+      // show result on card
+      const expDiv = document.getElementById('exp-'+idx);
+      const card = document.getElementById('card-'+idx);
+      if(ok){
+        card.classList.add('correct');
+        expDiv.style.display='block';
+        expDiv.innerHTML = `<strong style="color:green">Helyes.</strong> <div style="margin-top:6px">${pool[idx].explain}</div>`;
+      } else {
+        card.classList.add('wrong');
+        expDiv.style.display='block';
+        expDiv.innerHTML = `<strong style="color:red">Helytelen.</strong> Helyes válasz: <b>${pool[idx].a[0]}</b><div style="margin-top:6px">${pool[idx].explain}</div>`;
+      }
+    }
+  });
+
+  // compile stats
+  const answeredCount = Object.keys(answers).length;
+  const correctCount = Object.values(answers).filter(x=>x.ok).length;
+  const pct = answeredCount === 0 ? 0 : Math.round((correctCount/answeredCount)*100);
+
+  // show summary
+  document.getElementById('totalAsked').textContent = shown.length;
+  document.getElementById('answered').textContent = answeredCount;
+  document.getElementById('correct').textContent = correctCount;
+  document.getElementById('percent').textContent = pct + '%';
+
+  // wrong list
+  const wrongs = Object.values(answers).filter(x=>!x.ok);
+  const wrongBlock = document.getElementById('wrongBlock');
+  wrongBlock.innerHTML = '';
+  if(wrongs.length){
+    wrongBlock.innerHTML = '<h4>Hibás válaszok (javított):</h4><div class="wrongList">';
+    wrongs.forEach((w,i)=>{
+      wrongBlock.innerHTML += `<p><strong>${i+1}.</strong> ${w.q}<br><em>${w.hu}</em><br><strong>Te:</strong> ${w.user || '(üres)'}<br><strong>Helyes:</strong> ${w.correct}<br><small>${w.explain}</small></p>`;
+    });
+    wrongBlock.innerHTML += '</div>';
+  } else {
+    wrongBlock.innerHTML = '<p>Gratulálok! Minden válasz helyes volt.</p>';
+  }
+
+  document.getElementById('summary').style.display = 'block';
+  // make controls disabled
+  document.getElementById('nextBtn').disabled = true;
+}
+
+// restart
+function restart(){
+  document.getElementById('nextBtn').disabled = false;
+  preparePool();
+}
+
+// events
+document.getElementById('nextBtn').addEventListener('click', renderNext);
+document.getElementById('finishBtn').addEventListener('click', finishTest);
+document.getElementById('restartBtn')?.addEventListener('click', restart);
+document.getElementById('shuffleToggle').addEventListener('change', ()=>{
+  preparePool();
+});
+
+preparePool(); // initial setup
+// show first question automatically
+renderNext();
+
+</script>
+</body>
+</html>

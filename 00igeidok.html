@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angol igeidők összefoglaló táblázat és ábra</title>
+<style>
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f8f9fa;
+    color: #222;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    text-align: center;
+    color: #004080;
+  }
+  h2 {
+    margin-top: 40px;
+    border-bottom: 2px solid #004080;
+    padding-bottom: 5px;
+  }
+  p.intro {
+    text-align: justify;
+    max-width: 900px;
+    margin: 0 auto 20px auto;
+    font-size: 17px;
+  }
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  .legend span {
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: #004080;
+  }
+  .present-legend { background-color: #d4edda; }
+  .past-legend { background-color: #d1ecf1; }
+  .future-legend { background-color: #fff3cd; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 40px;
+  }
+  th, td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    vertical-align: top;
+  }
+  th {
+    background: #004080;
+    color: #fff;
+    text-align: left;
+  }
+  td:first-child {
+    font-weight: bold;
+  }
+  .english { color: #004080; font-weight: 600; }
+  .hungarian { color: #006600; font-weight: 600; }
+
+  /* Színkód a soroknak idősík szerint */
+  .present { background-color: #d4edda; }
+  .past { background-color: #d1ecf1; }
+  .future { background-color: #fff3cd; }
+
+  tr.present:hover { background-color: #b7e1b4; }
+  tr.past:hover { background-color: #a8d9e3; }
+  tr.future:hover { background-color: #ffe59c; }
+
+  td i {
+    display: block;
+    background-color: #cce5ff;
+    padding: 5px 8px;
+    border-radius: 5px;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    margin-top: 5px;
+    font-style: normal;
+    color: #004085;
+  }
+
+  /* Vizuális ábra stílus */
+  .chart {
+    max-width: 900px;
+    margin: 40px auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    text-align: center;
+  }
+  .chart .time {
+    font-weight: bold;
+    padding: 5px;
+    border-radius: 5px;
+    color: #fff;
+  }
+  .present-time { background-color: #28a745; }
+  .past-time { background-color: #17a2b8; }
+  .future-time { background-color: #fd7e14; }
+  .chart .tense {
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #e9ecef;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    margin: 2px 0;
+  }
+</style>
+</head>
+<body>
+
+  <h1>Angol igeidők összefoglaló</h1>
+
+  <p class="intro">
+    A táblázat a 12 angol igeidőt mutatja be, színkódolt idősíkokkal a gyorsabb vizuális megkülönböztetéshez.  
+    A példamondatok külön kiemelve segítik a gyors tanulást.  
+    A táblázat tetején a legendában látható a színek jelentése, így nyomtatásnál is átlátható.
+  </p>
+
+  <div class="legend">
+    <span class="present-legend">🟢 Jelen idő</span>
+    <span class="past-legend">🔵 Múlt idő</span>
+    <span class="future-legend">🟠 Jövő idő</span>
+  </div>
+
+  <!-- Jelen idő -->
+  <h2>JELEN IDŐ (Present Tenses)</h2>
+  <table>
+    <tr>
+      <th>Szerkezet (angolul)</th>
+      <th>Magyar megnevezés</th>
+      <th>Képzés</th>
+      <th>Használat / jelentés</th>
+      <th>Példa</th>
+      <th>Magyar jelentés</th>
+      <th>Magyarázat</th>
+    </tr>
+    <tr class="present">
+      <td class="english">Present Simple</td>
+      <td class="hungarian">Egyszerű jelen idő</td>
+      <td>ige (he/she/it esetén -s)</td>
+      <td>Szokások, tények, általános igazságok</td>
+      <td><i>I go to school every day.</i></td>
+      <td>Minden nap iskolába járok.</td>
+      <td>Rendszeres, ismétlődő cselekvés.</td>
+    </tr>
+    <tr class="present">
+      <td class="english">Present Continuous</td>
+      <td class="hungarian">Folyamatos jelen idő</td>
+      <td>am/is/are + ige-ing</td>
+      <td>Éppen most történik, vagy átmeneti cselekvés</td>
+      <td><i>I’m studying English now.</i></td>
+      <td>Most angolt tanulok.</td>
+      <td>A beszéd pillanatában folyamatban van.</td>
+    </tr>
+    <tr class="present">
+      <td class="english">Present Perfect</td>
+      <td class="hungarian">Befejezett jelen idő</td>
+      <td>have/has + ige 3. alakja</td>
+      <td>Múltban történt, de hatása van a jelenre</td>
+      <td><i>I have finished my homework.</i></td>
+      <td>Befejeztem a házimat.</td>
+      <td>A cselekvés befejeződött, de eredménye most fontos.</td>
+    </tr>
+    <tr class="present">
+      <td class="english">Present Perfect Continuous</td>
+      <td class="hungarian">Befejezett folyamatos jelen idő</td>
+      <td>have/has been + ige-ing</td>
+      <td>Múltban kezdődött, és most is tart</td>
+      <td><i>I have been learning English for 3 years.</i></td>
+      <td>3 éve tanulok angolt.</td>
+      <td>A cselekvés folyamatossága és időtartama fontos.</td>
+    </tr>
+  </table>
+
+  <!-- Múlt idő -->
+  <h2>MÚLT IDŐ (Past Tenses)</h2>
+  <table>
+    <tr>
+      <th>Szerkezet (angolul)</th>
+      <th>Magyar megnevezés</th>
+      <th>Képzés</th>
+      <th>Használat / jelentés</th>
+      <th>Példa</th>
+      <th>Magyar jelentés</th>
+      <th>Magyarázat</th>
+    </tr>
+    <tr class="past">
+      <td class="english">Past Simple</td>
+      <td class="hungarian">Egyszerű múlt idő</td>
+      <td>ige 2. alakja (vagy -ed végződés)</td>
+      <td>Befejezett cselekvés a múltban, konkrét időpontban</td>
+      <td><i>I visited London last year.</i></td>
+      <td>Tavaly Londonban jártam.</td>
+      <td>A cselekvés lezárult a múltban.</td>
+    </tr>
+    <tr class="past">
+      <td class="english">Past Continuous</td>
+      <td class="hungarian">Folyamatos múlt idő</td>
+      <td>was/were + ige-ing</td>
+      <td>Egy adott múltbeli pillanatban éppen folyamatban volt</td>
+      <td><i>I was watching TV at 8 pm.</i></td>
+      <td>Este 8-kor tévét néztem.</td>
+      <td>Hosszabb folyamat, amely egy múltbeli időpontban zajlott.</td>
+    </tr>
+    <tr class="past">
+      <td class="english">Past Perfect</td>
+      <td class="hungarian">Befejezett múlt idő</td>
+      <td>had + ige 3. alakja</td>
+      <td>Egy múltbeli cselekvés, amely megelőzött egy másikat</td>
+      <td><i>I had finished dinner before you arrived.</i></td>
+      <td>Befejeztem a vacsorát, mielőtt megérkeztél.</td>
+      <td>A „had finished” korábban történt, mint a „arrived”.</td>
+    </tr>
+    <tr class="past">
+      <td class="english">Past Perfect Continuous</td>
+      <td class="hungarian">Befejezett folyamatos múlt idő</td>
+      <td>had been + ige-ing</td>
+      <td>Egy múltbeli folyamat, amely egy másik múltbeli eseményig tartott</td>
+      <td><i>I had been studying for two hours before he came.</i></td>
+      <td>Két órája tanultam, mielőtt ő megjött.</td>
+      <td>A folyamat időtartamát hangsúlyozza a múltban.</td>
+    </tr>
+  </table>
+
+  <!-- Jövő idő -->
+  <h2>JÖVŐ IDŐ (Future Tenses)</h2>
+  <table>
+    <tr>
+      <th>Szerkezet (angolul)</th>
+      <th>Magyar megnevezés</th>
+      <th>Képzés</th>
+      <th>Használat / jelentés</th>
+      <th>Példa</th>
+      <th>Magyar jelentés</th>
+      <th>Magyarázat</th>
+    </tr>
+    <tr class="future">
+      <td class="english">Will (Future Simple)</td>
+      <td class="hungarian">Egyszerű jövő idő</td>
+      <td>will + ige</td>
+      <td>Hirtelen döntés, ígéret, jövőbeli tény, vélemény</td>
+      <td><i>I’ll help you with your homework.</i></td>
+      <td>Segíteni fogok a háziban.</td>
+      <td>Spontán döntés, nem előre tervezett.</td>
+    </tr>
+    <tr class="future">
+      <td class="english">Be going to</td>
+      <td class="hungarian">„Going to”-s jövő / szándék</td>
+      <td>am/is/are + going to + ige</td>
+      <td>Előre elhatározott szándék, terv vagy biztos jövőbeli esemény</td>
+      <td><i>I’m going to visit my grandparents this weekend.</i></td>
+      <td>A hétvégén meg fogom látogatni a nagyszüleimet.</td>
+      <td>Már eltervezett jövőbeli cselekvés.</td>
+    </tr>
+    <tr class="future">
+      <td class="english">Present Continuous (for future)</td>
+      <td class="hungarian">Jelen folyamatos jövőre vonatkozóan</td>
+      <td>am/is/are + ige-ing</td>
+      <td>Megbeszélt, biztos jövőbeli esemény</td>
+      <td><i>I’m meeting my friend at 6.</i></td>
+      <td>6-kor találkozom a barátommal.</td>
+      <td>Program, amit már megbeszéltek.</td>
+    </tr>
+    <tr class="future">
+      <td class="english">Present Simple (for future)</td>
+      <td class="hungarian">Jelen egyszerű jövőre vonatkozóan</td>
+      <td>ige (egyszerű jelen)</td>
+      <td>Menetrendek, hivatalos időpontok</td>
+      <td><i>The train leaves at 7.30.</i></td>
+      <td>A vonat 7:30-kor indul.</td>
+      <td>Rögzített programoknál használatos.</td>
+    </tr>
+    <tr class="future">
+      <td class="english">Future Continuous</td>
+      <td class="hungarian">Folyamatos jövő idő</td>
+      <td>will be + ige-ing</td>
+      <td>Adott jövőbeli pillanatban éppen folyamatban lesz</td>
+      <td><i>At 8 pm I’ll be studying.</i></td>
+      <td>Este 8-kor éppen tanulni fogok.</td>
+      <td>A folyamat hangsúlyos a jövőben.</td>
+    </tr>
+    <tr class="future">
+      <td class="english">Future Perfect</td>
+      <td class="hungarian">Befejezett jövő idő</td>
+      <td>will have + ige 3. alakja</td>
+      <td>Befejeződik egy adott jövőbeli időpontig</td>
+      <td><i>By 2026, I will have finished university.</i></td>
+      <td>2026-ra be fogom fejezni az egyetemet.</td>
+      <td>A cselekvés lezárul a jövőbeli időpontig.</td>
+    </tr>
+    <tr class="future">
+      <td class="english">Future Perfect Continuous</td>
+      <td class="hungarian">Befejezett folyamatos jövő idő</td>
+      <td>will have been + ige-ing</td>
+      <td>Jövőbeli időpontig tartó folyamat időtartama hangsúlyos</td>
+      <td><i>By June, I will have been working here for 10 years.</i></td>
+      <td>Júniusra már 10 éve fogok itt dolgozni.</td>
+      <td>A folyamat tartósságát emeli ki a jövőben.</td>
+    </tr>
+  </table>
+
+  <!-- Vizuális ábra -->
+  <h2>Idősíkok és igeidők vizuális összefoglalója</h2>
+  <div class="chart">
+    <div class="time past-time">Múlt</div>
+    <div class="time present-time">Jelen</div>
+    <div class="time future-time">Jövő</div>
+    <div class="time">Idősík</div>
+
+    <!-- Past -->
+    <div class="tense">Past Simple</div>
+    <div class="tense">Present Simple</div>
+    <div class="tense">Will (Future Simple)</div>
+    <div class="tense"></div>
+
+    <div class="tense">Past Continuous</div>
+    <div class="tense">Present Continuous</div>
+    <div class="tense">Future Continuous</div>
+    <div class="tense"></div>
+
+    <div class="tense">Past Perfect</div>
+    <div class="tense">Present Perfect</div>
+    <div class="tense">Future Perfect</div>
+    <div class="tense"></div>
+
+    <div class="tense">Past Perfect Continuous</div>
+    <div class="tense">Present Perfect Continuous</div>
+    <div class="tense">Future Perfect Continuous</div>
+    <div class="tense"></div>
+  </div>
+
+</body>
+</html>
