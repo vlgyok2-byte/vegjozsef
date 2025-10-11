@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Future Tenses – Jövő idejű igeidők teszt</title>
+<style>
+  :root{
+    --blue:#004080;
+    --blue-dark:#003566;
+    --light:#f8f9fa;
+    --card:#ffffff;
+    --ok:#c6f6c6;
+    --bad:#ffd6d6;
+  }
+  body{
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--light);
+    margin: 20px;
+    color:#222;
+    line-height:1.45;
+  }
+  h1{
+    color:var(--blue);
+    text-align:center;
+    margin-bottom:8px;
+  }
+  p.lead{
+    text-align:center;
+    margin-top:0;
+    margin-bottom:18px;
+    max-width:820px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .container{
+    max-width:960px;
+    margin:0 auto;
+  }
+
+  .quiz-page { display: none; }
+  .question {
+    background: var(--card);
+    border-radius:10px;
+    padding:14px;
+    margin:14px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .q-head { font-weight:600; margin-bottom:8px; color:#08345a; }
+  .answers { display:block; }
+  .answers button {
+    display:block;
+    width:100%;
+    text-align:left;
+    padding:10px 12px;
+    margin:8px 0;
+    border-radius:8px;
+    border:1px solid var(--blue);
+    background:#f0f6ff;
+    cursor:pointer;
+    transition: all .15s;
+  }
+  .answers button:hover { background:#e6f3ff; transform: translateY(-1px); }
+  .answers button.correct { background: var(--ok) !important; border-color:#009900; }
+  .answers button.wrong { background: var(--bad) !important; border-color:#cc0000; }
+
+  .explain {
+    margin-top:8px;
+    padding:10px;
+    background:#fbfbfb;
+    border-left:4px solid #ddd;
+    border-radius:6px;
+    display:none;
+  }
+  .explain strong { color:var(--blue); }
+  .pager {
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    margin-top:20px;
+    align-items:center;
+  }
+  .pager .btn {
+    padding:10px 16px;
+    background:var(--blue);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .pager .btn[disabled] { opacity:0.5; cursor:not-allowed; }
+  .progress {
+    text-align:center;
+    font-size:14px;
+    color:#555;
+  }
+
+  #resultBox {
+    margin-top:20px;
+    background:var(--card);
+    padding:14px;
+    border-radius:10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display:none;
+  }
+  #summaryTable { width:100%; border-collapse:collapse; margin-top:10px; }
+  #summaryTable th, #summaryTable td { text-align:left; padding:8px; border-bottom:1px solid #eee; }
+  .correctMark { color:#009900; font-weight:700; }
+  .wrongMark { color:#cc0000; font-weight:700; }
+
+  .small { font-size:13px; color:#555; }
+  footer { text-align:center; margin-top:28px; color:#666; font-size:13px; }
+  @media (min-width:700px){
+    .answers button { max-width:720px; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Future Tenses – Jövő idejű igeidők teszt</h1>
+    <p class="lead">Kérdés a jövő idejű szerkezetek gyakorlására. 5 kérdés / oldal — válaszadás után azonnali magyarázatot kapsz. Jó gyakorlást!</p>
+
+    <div id="quizArea"></div>
+
+    <div class="pager" id="pagerBar" style="display:none;">
+      <button class="btn" id="prevBtn">← Előző</button>
+      <div class="progress" id="progressText">1 / ?</div>
+      <button class="btn" id="nextBtn">Következő →</button>
+    </div>
+
+    <div style="text-align:center; margin-top:18px;">
+      <button class="btn" id="finishBtn">Befejezés és értékelés</button>
+    </div>
+
+    <div id="resultBox">
+      <h2 id="resultTitle"></h2>
+      <p id="resultSummary" class="small"></p>
+
+      <table id="summaryTable" aria-live="polite"></table>
+    </div>
+
+    <footer>
+      <p>Válaszadás után azonnal megjelenik a magyarázat és a magyar fordítás. A helyes válasz zöld, a hibás piros.</p>
+    </footer>
+  </div>
+
+<script>
+/* =======================
+   KÉRDÉSEK + MAGYAR MAGYARÁZATOK
+   - minden kérdés: q, options[], correct (index), explanation (magyar)
+   ======================= */
+const questions = [
+  { q: "I think it ______ tomorrow. (esni fog – előrejelzés)", options: ["will rain", "is raining", "rains"], correct: 0,
+    explanation: "Will (Future Simple) – előrejelzés: 'Valószínű, hogy esni fog.' (Fog esni holnap.)" },
+
+  { q: "Look at those clouds! It ______ soon. (bizonyosság, jelek alapján)", options: ["is going to rain", "will rain", "rained"], correct: 0,
+    explanation: "Be going to – jelek alapján: a felhők miatt biztos jele van annak, hogy hamarosan esni fog. (Hamarosan esni fog.)" },
+
+  { q: "I’m tired. I ______ to bed. (spontán döntés)", options: ["will go", "am going", "go"], correct: 0,
+    explanation: "Will (spontán döntés): Most dönti el, hogy lefekszik. ('Majd lefekszem.')" },
+
+  { q: "I ______ my grandparents this weekend. (terv)", options: ["am going to visit", "visit", "will visit"], correct: 0,
+    explanation: "Be going to – terv: előre elhatározott látogatás. (A hétvégén meglátogatom a nagyszüleimet.)" },
+
+  { q: "At this time tomorrow, I ______ in London. (folyamat jövőben)", options: ["will be working", "am working", "worked"], correct: 0,
+    explanation: "Future Continuous – egy adott jövőbeli pillanatban folyamatban lesz a cselekvés. ('Holnap ilyenkor Londonban dolgozni/leszek/leszek úton.') " },
+
+  { q: "By 2026, I ______ university. (befejezett jövő)", options: ["will have finished", "finish", "will be finishing"], correct: 0,
+    explanation: "Future Perfect – a jövő egy pontjáig befejeződik a cselekvés. (2026-ra be fogom fejezni az egyetemet.)" },
+
+  { q: "By June, I ______ here for 10 years. (befejezett folyamatos jövő)", options: ["will have been working", "will work", "am working"], correct: 0,
+    explanation: "Future Perfect Continuous – a jövőbeli időpontig tartó folyamat hosszát hangsúlyozza. (Júniusra 10 éve fogok itt dolgozni.)" },
+
+  { q: "The train ______ at 7:30. (menetrend)", options: ["leaves", "is leaving", "will leave"], correct: 0,
+    explanation: "Present Simple (menetrend): a vonat menetrendje rögzítve van: 'A vonat 7:30-kor indul.' " },
+
+  { q: "We ______ dinner at 8. (megbeszélt program)", options: ["are having", "will have", "have"], correct: 0,
+    explanation: "Present Continuous for future – előre megbeszélt program: '8-kor vacsorázunk.' " },
+
+  { q: "Don’t call me at 9 – I ______. (folyamatban lesz)", options: ["will be sleeping", "sleep", "am sleeping"], correct: 0,
+    explanation: "Future Continuous – 9-kor éppen aludni fogok, tehát nem leszek elérhető." },
+
+  { q: "Watch out! You ______ that glass! (jelek alapján, figyelmeztetés)", options: ["are going to drop", "will drop", "drop"], correct: 0,
+    explanation: "Be going to – a pillanatnyi jel alapján történő esemény: 'Fogod eleszteni azt a poharat!'" },
+
+  { q: "She promises she ______ you tomorrow. (ígéret)", options: ["will call", "is calling", "calls"], correct: 0,
+    explanation: "Will – ígéret/spontán döntés: 'Megígéri, hogy holnap felhív.' " },
+
+  { q: "What ______ you ______ this weekend? (megbeszélt program)", options: ["are / doing", "will / do", "do / do"], correct: 0,
+    explanation: "Present Continuous for future – 'Mit fogsz csinálni a hétvégén?' megbeszélt program vagy terv kifejezésére." },
+
+  { q: "The film ______ at 8 pm. (menetrend/program)", options: ["starts", "is starting", "will start"], correct: 0,
+    explanation: "Present Simple – menetrend/program: 'A film 8-kor kezdődik.' " },
+
+  { q: "I ______ my grandparents next Sunday. (terv)", options: ["am going to visit", "visit", "will visit"], correct: 0,
+    explanation: "Be going to – előre eltervezett szándék: 'A jövő vasárnap meglátogatom a nagyszüleimet.' " },
+
+  { q: "Don’t worry, I ______ the door for you. (spontán döntés)", options: ["will open", "am opening", "open"], correct: 0,
+    explanation: "Will – spontán, azonnali segítség/ígéret: 'Megnyitom (előtted) az ajtót.' " },
+
+  { q: "He ______ at 7 tomorrow morning. (folyamatban lesz)", options: ["will be sleeping", "sleeps", "is sleeping"], correct: 0,
+    explanation: "Future Continuous – egy jövőbeli időpontban éppen alszik majd." },
+
+  { q: "By the time you arrive, we ______ dinner. (befejezett jövő)", options: ["will have eaten", "eat", "are eating"], correct: 0,
+    explanation: "Future Perfect – mire megérkezel, a vacsora már befejeződik." },
+
+  { q: "This time next year, I ______ abroad. (folyamat jövőben)", options: ["will be living", "live", "am living"], correct: 0,
+    explanation: "Future Continuous – egy jövőbeli időpontban folyamatosan külföldön fog élni." },
+
+  { q: "By June, she ______ for the company for 5 years. (hosszú folyamat jövőben)", options: ["will have been working", "works", "will work"], correct: 0,
+    explanation: "Future Perfect Continuous – júniusra már 5 éve fog dolgozni a cégnél (a folyamat időtartamát hangsúlyozza)." },
+
+  { q: "I’m afraid I ______ be able to come. (vélemény/negatív jóslat)", options: ["won’t", "am not going to", "don’t"], correct: 0,
+    explanation: "Will (negatív): 'Attól tartok, nem tudok eljönni.' – egyszerű jövőbeli következtetés." },
+
+  { q: "The meeting ______ at 10 o’clock. (program/menetrend)", options: ["starts", "is starting", "will start"], correct: 0,
+    explanation: "Present Simple – rögzített időpontú esemény: 'A találkozó 10-kor kezdődik.' " },
+
+  { q: "He ______ the report tomorrow morning. (előre elhatározott terv)", options: ["is going to finish", "will finish", "finishes"], correct: 0,
+    explanation: "Be going to – előre elhatározott terv: 'Holnap reggel befejezi a jelentést.' " },
+
+  { q: "Don’t call me at 9, I ______ a shower. (folyamatban lesz)", options: ["will be having", "am having", "have"], correct: 0,
+    explanation: "Future Continuous – 9-kor éppen zuhanyozni fogok." },
+
+  { q: "By the end of the day, I ______ 50 emails. (befejezett jövő)", options: ["will have written", "write", "am writing"], correct: 0,
+    explanation: "Future Perfect – a nap végére már meglesz az 50 elküldött e-mail." },
+
+  { q: "By the end of this year, we ______ in our new house for 6 months. (folyamat hossza jövőben)", options: ["will have been living", "will live", "are living"], correct: 0,
+    explanation: "Future Perfect Continuous – év végére már 6 hónapja fogunk új házban élni (a tartamot hangsúlyozza)." },
+
+  { q: "He ______ to buy a new car next month. (szándék)", options: ["is going to", "will", "is"], correct: 0,
+    explanation: "Be going to – szándék/terv: 'Azt tervezi, hogy jövő hónapban új autót vesz.' " },
+
+{ q: "By this time next week, I ______ all my exams. (befejezett jövő)", 
+  options: ["will have taken", "take", "am taking"], correct: 0,
+  explanation: "Future Perfect – a jövő egy adott időpontjáig befejeződik a cselekvés. (Jövő ilyenkorra már minden vizsgát leteszek.)" },
+
+{ q: "By next summer, she ______ here for two years. (folyamat jövőbeli időpontig)", 
+  options: ["will have been working", "will work", "is working"], correct: 0,
+  explanation: "Future Perfect Continuous – hangsúly a folyamat tartamán van. (Jövő nyárra már két éve fog itt dolgozni.)" },
+
+{ q: "By midnight, we ______ the whole film. (befejezett jövő)", 
+  options: ["will have watched", "watch", "will be watching"], correct: 0,
+  explanation: "Future Perfect – éjfélre befejezzük a filmet. (Addigra már megnézzük.)" },
+
+{ q: "This time tomorrow, they ______ to Spain. (folyamat jövőbeli időpontban)", 
+  options: ["will be flying", "fly", "are flying"], correct: 0,
+  explanation: "Future Continuous – a jövő egy adott pillanatában éppen repülni fognak. (Holnap ilyenkor Spanyolországba repülnek.)" },
+
+{ q: "By the time you get home, I ______ dinner. (befejezett jövő)", 
+  options: ["will have cooked", "am cooking", "cook"], correct: 0,
+  explanation: "Future Perfect – mire hazaérsz, már megfőzöm a vacsorát." },
+
+{ q: "By this time next year, he ______ for ten years. (folyamat időtartama jövőben)", 
+  options: ["will have been teaching", "will teach", "teaches"], correct: 0,
+  explanation: "Future Perfect Continuous – jövő ilyenkorra már 10 éve fog tanítani." },
+
+{ q: "At 10 o’clock tomorrow, we ______ for our test. (folyamat jövőben)", 
+  options: ["will be studying", "study", "are studying"], correct: 0,
+  explanation: "Future Continuous – 10 órakor éppen tanulni fogunk a dolgozatra." },
+
+{ q: "By the time the movie starts, we ______ our seats. (befejezett jövő)", 
+  options: ["will have found", "find", "are finding"], correct: 0,
+  explanation: "Future Perfect – mire a film elkezdődik, már megkeressük a helyünket." },
+
+{ q: "By next Monday, I ______ all my homework. (befejezett jövő)", 
+  options: ["will have finished", "finish", "am finishing"], correct: 0,
+  explanation: "Future Perfect – jövő hétfőre befejezem az összes házit." },
+
+{ q: "By 2030, scientists ______ a cure for this disease. (befejezett jövő)", 
+  options: ["will have discovered", "discover", "will discover"], correct: 0,
+  explanation: "Future Perfect – 2030-ra a tudósok valószínűleg megtalálják a gyógymódot." },
+
+{ q: "By 5 o’clock, I ______ here for three hours. (folyamat időtartama jövőben)", 
+  options: ["will have been waiting", "wait", "am waiting"], correct: 0,
+  explanation: "Future Perfect Continuous – 5 órára már három órája fogok itt várni." },
+
+{ q: "This time next week, we ______ on the beach. (folyamat jövőben)", 
+  options: ["will be lying", "lie", "are lying"], correct: 0,
+  explanation: "Future Continuous – jövő héten ilyenkor a strandon fogunk feküdni." },
+
+{ q: "By the end of the year, she ______ five new songs. (befejezett jövő)", 
+  options: ["will have written", "writes", "is writing"], correct: 0,
+  explanation: "Future Perfect – az év végére öt új dalt fog megírni." },
+
+{ q: "In ten years, people ______ on Mars. (jóslat)", 
+  options: ["will live", "are living", "live"], correct: 0,
+  explanation: "Will (Future Simple) – egyszerű jövő idejű jóslat: 'Tíz év múlva emberek fognak élni a Marson.'" },
+
+{ q: "By next April, I ______ my driving test. (befejezett jövő)", 
+  options: ["will have passed", "pass", "am passing"], correct: 0,
+  explanation: "Future Perfect – jövő áprilisra leteszem a jogosítványt." }
+
+
+
+];
+
+/* =======================
+   LOGIKA: lapozás, véletlen opciósorrend, azonnali magyarázat, összesítés
+   ======================= */
+
+const PAGE_SIZE = 5;
+let currentPage = 0;
+let totalPages = Math.ceil(questions.length / PAGE_SIZE);
+const quizArea = document.getElementById('quizArea');
+const pagerBar = document.getElementById('pagerBar');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const progressText = document.getElementById('progressText');
+const finishBtn = document.getElementById('finishBtn');
+const resultBox = document.getElementById('resultBox');
+const resultTitle = document.getElementById('resultTitle');
+const resultSummary = document.getElementById('resultSummary');
+const summaryTable = document.getElementById('summaryTable');
+
+let userAnswers = new Array(questions.length).fill(null); // { chosen: "text", correct: true/false }
+
+/* helper: deep clone and shuffle array */
+function shuffleArray(a) {
+  const arr = a.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+/* render a page of questions */
+function renderPage(pageIndex) {
+  quizArea.innerHTML = '';
+  const start = pageIndex * PAGE_SIZE;
+  const end = Math.min(start + PAGE_SIZE, questions.length);
+  for (let i = start; i < end; i++) {
+    const q = questions[i];
+    // build shuffled options but keep track of original correct text
+    const optionsShuffled = shuffleArray(q.options);
+    const qDiv = document.createElement('div');
+    qDiv.className = 'quiz-page';
+    qDiv.dataset.qindex = i;
+
+    const qBox = document.createElement('div');
+    qBox.className = 'question';
+    qBox.innerHTML = `<div class="q-head">${i+1}. ${q.q}</div>`;
+
+    const answersDiv = document.createElement('div');
+    answersDiv.className = 'answers';
+
+    optionsShuffled.forEach(optText => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = optText;
+      btn.dataset.opt = optText;
+      btn.onclick = () => handleAnswer(i, optText, btn, answersDiv);
+      answersDiv.appendChild(btn);
+    });
+
+    const explainDiv = document.createElement('div');
+    explainDiv.className = 'explain';
+    explainDiv.id = `explain-${i}`;
+    explainDiv.setAttribute('aria-live','polite');
+    explainDiv.innerHTML = `<div class="small"><strong>Magyarázat:</strong> ${q.explanation}</div>`;
+
+    qBox.appendChild(answersDiv);
+    qBox.appendChild(explainDiv);
+    qDiv.appendChild(qBox);
+    quizArea.appendChild(qDiv);
+  }
+
+  // show only this page
+  Array.from(document.querySelectorAll('.quiz-page')).forEach((el, idx) => {
+    const pageOfEl = Math.floor(idx / PAGE_SIZE);
+    // Instead of using idx we calculate visibility by locating elements order on page
+    // We'll just show the ones we created here (they are sequential)
+  });
+
+  // Show the created set
+  Array.from(document.querySelectorAll('.quiz-page')).forEach(el => el.style.display = 'none');
+  Array.from(quizArea.children).forEach(el => el.style.display = 'block');
+
+  // Show pager
+  pagerBar.style.display = 'flex';
+  progressText.textContent = `${pageIndex+1} / ${totalPages}`;
+
+  // Prev/Next button state
+  prevBtn.disabled = (pageIndex === 0);
+  nextBtn.disabled = (pageIndex === totalPages - 1);
+}
+
+/* Handle answer click: show immediate feedback & explanation */
+function handleAnswer(qIndex, chosenText, clickedButton, answersDiv) {
+  const q = questions[qIndex];
+  const correctText = q.options[q.correct];
+
+  // disable all buttons for this question
+  const buttons = answersDiv.querySelectorAll('button');
+  buttons.forEach(b => b.disabled = true);
+
+  // mark clicked
+  if (chosenText === correctText) {
+    clickedButton.classList.add('correct');
+    userAnswers[qIndex] = { chosen: chosenText, correct: true };
+  } else {
+    clickedButton.classList.add('wrong');
+    // highlight correct button
+    buttons.forEach(b => {
+      if (b.dataset.opt === correctText) b.classList.add('correct');
+    });
+    userAnswers[qIndex] = { chosen: chosenText, correct: false };
+  }
+
+  // show explanation area
+  const explainDiv = document.getElementById(`explain-${qIndex}`);
+  if (explainDiv) explainDiv.style.display = 'block';
+}
+
+/* pager controls */
+prevBtn.addEventListener('click', () => {
+  if (currentPage > 0) {
+    currentPage--;
+    renderPage(currentPage);
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+});
+nextBtn.addEventListener('click', () => {
+  if (currentPage < totalPages - 1) {
+    currentPage++;
+    renderPage(currentPage);
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+});
+
+/* finish: compute results and show summary */
+finishBtn.addEventListener('click', showResultsSummary);
+
+function showResultsSummary() {
+  // count correct
+  let correctCount = 0;
+  for (let i=0;i<questions.length;i++){
+    if (userAnswers[i] && userAnswers[i].correct) correctCount++;
+  }
+  const percent = Math.round((correctCount / questions.length) * 100);
+
+  // result text
+  resultTitle.textContent = `Eredmény: ${correctCount} / ${questions.length} (${percent}%)`;
+  let advice = '';
+  if (percent === 100) advice = 'Kiváló! Minden helyes.';
+  else if (percent >= 80) advice = 'Nagyon jó! Kis gyakorlás még segíthet.';
+  else if (percent >= 50) advice = 'Jól haladsz — ismétlés javasolt a nehezebb szerkezetekre.';
+  else advice = 'Gyakorlás javasolt: nézd át a Future Continuous és a Future Perfect Continuous részeket.';
+
+  resultSummary.innerHTML = `<strong class="small">${advice}</strong><br>Azonnali magyarázatokat minden kérdésnél láttad.`;
+
+  // build summary table
+  let rows = `<tr><th>#</th><th>Kérdés</th><th>Válaszod</th><th>Helyes</th></tr>`;
+  for (let i=0;i<questions.length;i++){
+    const q = questions[i];
+    const ua = userAnswers[i];
+    const chosen = ua ? ua.chosen : '<em>Nem válaszolt</em>';
+    const ok = ua ? (ua.correct ? `<span class="correctMark">✔</span>` : `<span class="wrongMark">✖</span>`) : `<span class="wrongMark">✖</span>`;
+    // show the correct answer text
+    const correctText = q.options[q.correct];
+    rows += `<tr>
+      <td>${i+1}</td>
+      <td class="small">${q.q}<div class="small" style="color:#666; margin-top:4px;">(Helyes: <strong>${correctText}</strong>)</div></td>
+      <td class="small">${chosen}</td>
+      <td style="width:90px;">${ok}</td>
+    </tr>`;
+  }
+
+  summaryTable.innerHTML = rows;
+  resultBox.style.display = 'block';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* Initial render */
+renderPage(currentPage);
+
+</script>
+</body>
+</html>
