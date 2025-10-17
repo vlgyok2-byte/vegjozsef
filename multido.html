@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gyakorló: múlt igeidők — Past Simple / Continuous / Perfect / Perfect Continuous</title>
+<style>
+  :root{--bg:#f6f8fb;--card:#fff;--accent:#0b74de;--good:#d4f8d4;--bad:#ffd6d6;--muted:#666}
+  body{font-family:Inter,system-ui,Roboto,Arial;margin:18px;background:var(--bg);color:#111}
+  h1{color:var(--accent);margin:0 0 6px;font-size:1.4rem}
+  .card{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(12,24,40,.06);margin-bottom:12px;max-width:960px}
+  .controls{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+  button{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+  button.ghost{background:#e9f2ff;color:var(--accent);border:1px solid #cfe4ff}
+  .qcard{padding:12px;border-radius:8px;background:linear-gradient(180deg,#fff,#fbfdff);margin-bottom:10px;border:1px solid #eef6ff}
+  .translation{font-style:italic;color:var(--muted);margin-top:6px}
+  input[type=text]{padding:8px;border-radius:6px;border:1px solid #d1d7e0;width:100%;max-width:720px;box-sizing:border-box}
+  .buttons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .explain{background:#f0f8ff;padding:10px;border-left:4px solid var(--accent);border-radius:6px;margin-top:8px;display:none}
+  .correct{border-left:6px solid #43b77a;background:#f0fff4}
+  .wrong{border-left:6px solid #f26b6b;background:#fff5f5}
+  #summary{display:none;margin-top:12px;padding:12px;background:#fff;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.04)}
+  .wrongList p{margin:8px 0;padding:8px;background:#fff5f5;border-radius:6px}
+  .statsRow{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+  .small{font-size:.9rem;color:var(--muted)}
+  .topControls{position:sticky;top:12px;padding:6px 0;background:transparent;z-index:5}
+  @media(max-width:640px){input[type=text]{width:100%}}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="topControls">
+      <div class="controls">
+        <button id="globalNext" class="ghost">Következő</button>
+        <button id="globalFinish" class="ghost">Befejezem</button>
+        <button id="globalRestart" class="ghost">Újrakezd</button>
+        <label style="display:flex;align-items:center;gap:8px;margin-left:auto"><input type="checkbox" id="shuffle" checked> <span class="small">Véletlenszerű sorrend</span></label>
+      </div>
+    </div>
+
+    <h1>Gyakorló: múlt igeidők</h1>
+    <p class="small">Időtartam: <strong>Past Simple, Past Continuous, Past Perfect, Past Perfect Continuous</strong>. Írd be a hiányzó igealakot (pl. <code>worked</code>, <code>was working</code>, <code>had finished</code>, <code>had been working</code>). Azonnal kapsz visszajelzést és magyarázatot. A „Következő” gomb új kérdést ad hozzá az oldal aljára; az előzőek megmaradnak.</p>
+
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:6px">
+      <div class="small">Kérdések száma: <span id="totalCount">0</span></div>
+      <div style="margin-left:auto" class="small">Megjelenített: <span id="totalShown">0</span> • Megválaszolt: <span id="answeredCount">0</span> • Helyes: <span id="correctCount">0</span> • <span id="percent">0%</span></div>
+    </div>
+
+    <div id="quizArea"></div>
+
+    <div id="summary" class="card">
+      <h3>Összegzés</h3>
+      <div class="statsRow">
+        <div><strong>Megjelenített:</strong> <span id="sumTotalShown">0</span></div>
+        <div><strong>Megválaszolt:</strong> <span id="sumAnsweredCount">0</span></div>
+        <div><strong>Helyes:</strong> <span id="sumCorrectCount">0</span></div>
+        <div><strong>Százalék:</strong> <span id="sumPercent">0%</span></div>
+      </div>
+      <div id="wrongBlock"></div>
+      <div style="margin-top:10px"><button id="restartBtn" class="ghost">Újrakezd</button></div>
+    </div>
+  </div>
+
+<script>
+/* ====== Kérdésbank (40 tétel: 10-10 minden múlt igeidőből) ====== */
+const BANK = [
+  /* Past Simple */
+  { q: "I ______ (visit) my grandparents last weekend.", a: ["visited"], tense:"Past Simple", hu:"Múlt hétvégén meglátogattam a nagyszüleimet.", explain:"Past Simple — múltbeli, befejezett esemény. Képzése: ige múlt ideje (regular: -ed / irregular)."},
+  { q: "She ______ (buy) a new dress yesterday.", a: ["bought"], tense:"Past Simple", hu:"Tegnap vett egy új ruhát.", explain:"Past Simple — egyszeri múltbeli esemény (bought: rendhagyó)."},
+  { q: "They ______ (not / come) to the party.", a: ["did not come","didn't come"], tense:"Past Simple", hu:"Nem jöttek el a buliba.", explain:"Tagadás: did not + alapige."},
+  { q: "______ you ______ (see) that film last month?", a: ["did you see","did you see that film"], tense:"Past Simple", hu:"Láttad azt a filmet múlt hónapban?", explain:"Kérdés: Did + alany + alapige."},
+  { q: "He ______ (tell) me a secret.", a: ["told"], tense:"Past Simple", hu:"Elmondott egy titkot.", explain:"Past Simple — befejezett múlt (told: rendhagyó)."},
+  { q: "We ______ (move) to Budapest in 2015.", a: ["moved"], tense:"Past Simple", hu:"2015-ben költöztünk Budapestre.", explain:"Időponthoz kötött múltbeli esemény."},
+  { q: "I ______ (not / understand) the question.", a: ["did not understand","didn't understand"], tense:"Past Simple", hu:"Nem értettem a kérdést.", explain:"Tagadás múltban: did not + alapige."},
+  { q: "She ______ (break) her leg when she was young.", a: ["broke"], tense:"Past Simple", hu:"Eltörte a lábát, amikor fiatal volt.", explain:"Múltbeli esemény, egyszeri történés."},
+  { q: "They ______ (arrive) late yesterday.", a: ["arrived"], tense:"Past Simple", hu:"Tegnap késve érkeztek.", explain:"Regular past: -ed végződés."},
+  { q: "I ______ (decide) to study medicine.", a: ["decided"], tense:"Past Simple", hu:"Úgy döntöttem, orvostudományt tanulok.", explain:"Döntés a múltban: decided."},
+
+  /* Past Continuous */
+  { q: "I ______ (read) when you called me.", a: ["was reading"], tense:"Past Continuous", hu:"Épp olvastam, amikor felhívtál.", explain:"Past Continuous — was/were + -ing; folyamat egy adott pontban a múltban."},
+  { q: "They ______ (play) football at 5 pm yesterday.", a: ["were playing"], tense:"Past Continuous", hu:"Tegnap 5-kor fociztak.", explain:"Folyamatos múltbeli cselekvés adott időpontban."},
+  { q: "She ______ (not / listen) while I was talking.", a: ["was not listening","wasn't listening"], tense:"Past Continuous", hu:"Nem figyelt, miközben beszéltem.", explain:"Tagadás: was not / were not + -ing."},
+  { q: "What ______ you ______ (do) at 9 yesterday?", a: ["were you doing","what were you doing"], tense:"Past Continuous", hu:"Mit csináltál tegnap 9-kor?", explain:"Kérdés past continuous: were/was + alany + -ing."},
+  { q: "We ______ (cook) dinner when the guests arrived.", a: ["were cooking"], tense:"Past Continuous", hu:"Épp vacsorát főztünk, amikor megérkeztek a vendégek.", explain:"Folyamat megszakadása egy másik múltbeli eseménnyel."},
+  { q: "He ______ (drive) too fast and had an accident.", a: ["was driving"], tense:"Past Continuous", hu:"Túl gyorsan vezetett és balesete volt.", explain:"Cselekvés folyamata a múltban."},
+  { q: "It ______ (rain) while we were walking.", a: ["was raining"], tense:"Past Continuous", hu:"Eközben esett, miközben sétáltunk.", explain:"Időjárás a múlt folyamatában."},
+  { q: "They ______ (not / watch) TV; they were studying.", a: ["were not watching","weren't watching"], tense:"Past Continuous", hu:"Nem tévét néztek; tanultak.", explain:"Tagadás múltbeli folyamatosban."},
+  { q: "I ______ (wait) for the bus when I met Anna.", a: ["was waiting"], tense:"Past Continuous", hu:"A buszra vártam, amikor találkoztam Annával.", explain:"Folyamat + találkozás."},
+  { q: "While he ______ (sleep), someone called.", a: ["was sleeping"], tense:"Past Continuous", hu:"Miközben aludt, valaki hívott.", explain:"Egy esemény alatt zajló folyamat."},
+
+  /* Past Perfect */
+  { q: "I ______ (finish) my work before I went out.", a: ["had finished"], tense:"Past Perfect", hu:"Befejeztem a munkámat, mielőtt elmentem.", explain:"Past Perfect — had + past participle; korábbi múltbeli esemény."},
+  { q: "She ______ (already / leave) when we arrived.", a: ["had already left","had left already"], tense:"Past Perfect", hu:"Már elment, amikor megérkeztünk.", explain:"Past Perfect gyakran 'already'-val: had already + ige 3. alak."},
+  { q: "They ______ (not / meet) before that day.", a: ["had not met","hadn't met"], tense:"Past Perfect", hu:"Korábban még nem találkoztak.", explain:"Tagadás: had not + past participle."},
+  { q: "By the time he called, I ______ (go) to bed.", a: ["had gone"], tense:"Past Perfect", hu:"Amikor felhívott, már lefeküdtem.", explain:"Egy múltbeli esemény, amely korábban történt egy másik múltbeli eseményhez képest."},
+  { q: "After she ______ (cook), we ate.", a: ["had cooked"], tense:"Past Perfect", hu:"Miután megfőzött, ettünk.", explain:"Past Perfect használata: cselekvés lezárult a másik előtt."},
+  { q: "He ______ (not / finish) the test before time was up.", a: ["had not finished","hadn't finished"], tense:"Past Perfect", hu:"Nem fejezte be a tesztet, mielőtt lejárt az idő.", explain:"Negáció a past perfectben."},
+  { q: "I ______ (never / see) such a thing before.", a: ["had never seen"], tense:"Past Perfect", hu:"Korábban sosem láttam ilyet.", explain:"Never + past perfect - korábbi tapasztalat hiánya."},
+  { q: "They ______ (sell) the house before they moved.", a: ["had sold"], tense:"Past Perfect", hu:"Eladták a házat, mielőtt elköltöztek.", explain:"Past Perfect: lezárult esemény korábbi sorrendben."},
+  { q: "By then, we ______ (already / decide) to leave.", a: ["had already decided","had decided already"], tense:"Past Perfect", hu:"Addigra már eldöntöttük, hogy elmegyünk.", explain:"'By then' + past perfect a korábbi döntésre."},
+  { q: "She ______ (study) French before she moved to Paris.", a: ["had studied"], tense:"Past Perfect", hu:"Tanult franciául, mielőtt Párizsba költözött volna.", explain:"Korábbi tanulmány a múltban."},
+
+  /* Past Perfect Continuous */
+  { q: "I ______ (work) for two hours before she arrived.", a: ["had been working"], tense:"Past Perfect Continuous", hu:"Két órája dolgoztam, mielőtt megérkezett.", explain:"Past Perfect Continuous — had been + -ing; hangsúly a folyamat időtartamán a múltban."},
+  { q: "They ______ (live) in Rome for five years before they moved.", a: ["had been living"], tense:"Past Perfect Continuous", hu:"Öt éve éltek Rómában, mielőtt elköltöztek.", explain:"Hosszabb folyamat a múltban, amely egy másik múltbeli esemény előtt történt."},
+  { q: "She ______ (cry) and her eyes were red; she ______ (have) problems.", a: ["had been crying","had been having problems"], tense:"Past Perfect Continuous", hu:"Sírt és vörösek voltak a szemei; problémái voltak.", explain:"Folyamat + következmény; had been + -ing."},
+  { q: "By the time we met, he ______ (look) for a job for months.", a: ["had been looking"], tense:"Past Perfect Continuous", hu:"Addigra hónapok óta álláskereséssel foglalkozott.", explain:"Időtartam kiemelése a múltban."},
+  { q: "They ______ (practice) the song before the concert started.", a: ["had been practicing","had been practising"], tense:"Past Perfect Continuous", hu:"Gyakorolták a dalt, mielőtt elkezdődött a koncert.", explain:"Folyamatos gyakorlás a múltban."},
+  { q: "I ______ (wait) for an hour when the bus finally came.", a: ["had been waiting"], tense:"Past Perfect Continuous", hu:"Egy órája várakoztam, amikor végre jött a busz.", explain:"Várakozás időtartama a múltban."},
+  { q: "She ______ (teach) at that school for years before retiring.", a: ["had been teaching"], tense:"Past Perfect Continuous", hu:"Évekig tanított abban az iskolában, mielőtt nyugdíjba ment.", explain:"Hosszú távú folyamat, amely a múltban lezárult."},
+  { q: "He ______ (train) hard, so he was in great shape.", a: ["had been training"], tense:"Past Perfect Continuous", hu:"Keményen edzett, így jó formában volt.", explain:"Folyamat eredménye a múltban."},
+  { q: "By noon she ______ (study) for three hours.", a: ["had been studying"], tense:"Past Perfect Continuous", hu:"Délre három órája tanult.", explain:"Időtartam + past perfect continuous."},
+  { q: "They ______ (work) on the project before the manager changed plans.", a: ["had been working"], tense:"Past Perfect Continuous", hu:"Dolgoztak a projekten, mielőtt a vezető megváltoztatta a terveket.", explain:"Folyamat, amit egy későbbi múltbeli esemény megszakít."}
+];
+/* ====== logika ====== */
+let pool = [];
+let shown = [];    // store indices in pool that were rendered
+let answers = {};  // idx in pool -> {user, ok, correct, q, hu, explain, tense}
+
+function normalize(s){ return (s||'').toString().trim().toLowerCase().replace(/\s+/g,' '); }
+
+function preparePool(){
+  pool = BANK.map((t,i)=> ({...t, orig:i}));
+  if(document.getElementById('shuffle').checked) pool = shuffle(pool);
+  shown = [];
+  answers = {};
+  document.getElementById('quizArea').innerHTML = '';
+  document.getElementById('summary').style.display = 'none';
+  document.getElementById('totalCount').textContent = pool.length;
+  updateSummaryCounts();
+}
+
+function shuffle(a){
+  const b = a.slice();
+  for(let i=b.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [b[i],b[j]]=[b[j],b[i]];
+  }
+  return b;
+}
+
+function renderNext(){
+  if(pool.length===0) preparePool();
+  const idx = shown.length;
+  if(idx >= pool.length){ alert('Nincs több kérdés.'); return; }
+  const item = pool[idx];
+  const id = 'q'+idx;
+  const wrapper = document.createElement('div');
+  wrapper.className = 'qcard';
+  wrapper.id = 'card-'+idx;
+  wrapper.innerHTML = `
+    <div><strong>${idx+1}.</strong> ${item.q} <span style="float:right;color:var(--muted)">${item.tense}</span></div>
+    <div class="translation">${item.hu}</div>
+    <div style="margin-top:8px"><input type="text" id="${id}" placeholder="Írd be a választ..."></div>
+    <div class="buttons">
+      <button type="button" onclick="checkSingle(${idx})">Ellenőrzés</button>
+      <button type="button" onclick="renderNext()">Következő</button>
+      <button type="button" onclick="finishTest()">Befejezem</button>
+    </div>
+    <div id="exp-${idx}" class="explain"></div>
+  `;
+  document.getElementById('quizArea').appendChild(wrapper);
+  shown.push(idx);
+  updateSummaryCounts();
+  // scroll to new question a little
+  wrapper.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function checkSingle(idx){
+  const input = document.getElementById('q'+idx);
+  const raw = (input.value||'').trim();
+  const user = normalize(raw);
+  const item = pool[idx];
+  const corrects = (Array.isArray(item.a)? item.a : [item.a]).map(normalize);
+  const expDiv = document.getElementById('exp-'+idx);
+  const card = document.getElementById('card-'+idx);
+  const ok = corrects.includes(user);
+  answers[idx] = { user: raw, ok, correct: (Array.isArray(item.a)? item.a[0] : item.a), q: item.q, hu: item.hu, explain: item.explain, tense: item.tense };
+  if(ok){
+    card.classList.remove('wrong'); card.classList.add('correct');
+    expDiv.style.display='block';
+    expDiv.innerHTML = `<strong style="color:green">Helyes.</strong> <div style="margin-top:6px">${item.explain}</div>`;
+  } else {
+    card.classList.remove('correct'); card.classList.add('wrong');
+    expDiv.style.display='block';
+    expDiv.innerHTML = `<strong style="color:red">Helytelen.</strong> Helyes válasz: <b>${answers[idx].correct}</b><div style="margin-top:6px">${item.explain}</div>`;
+  }
+  updateSummaryCounts();
+}
+
+function updateSummaryCounts(){
+  const totalShown = shown.length;
+  const answeredCount = Object.keys(answers).length;
+  const correctCount = Object.values(answers).filter(x=>x.ok).length;
+  document.getElementById('totalShown').textContent = totalShown;
+  document.getElementById('answeredCount').textContent = answeredCount;
+  document.getElementById('correctCount').textContent = correctCount;
+  const pct = answeredCount===0?0:Math.round((correctCount/answeredCount)*100);
+  document.getElementById('percent').textContent = pct+'%';
+  document.getElementById('totalCount').textContent = pool.length;
+}
+
+function finishTest(){
+  // ensure any unanswered but filled fields are recorded
+  shown.forEach(idx=>{
+    if(!answers[idx]){
+      const raw = (document.getElementById('q'+idx)?.value||'').trim();
+      const user = normalize(raw);
+      const item = pool[idx];
+      const corrects = (Array.isArray(item.a)? item.a : [item.a]).map(normalize);
+      const ok = corrects.includes(user);
+      answers[idx] = { user: raw, ok, correct: (Array.isArray(item.a)? item.a[0] : item.a), q: item.q, hu: item.hu, explain: item.explain, tense: item.tense };
+      const expDiv = document.getElementById('exp-'+idx);
+      const card = document.getElementById('card-'+idx);
+      if(ok){
+        card.classList.add('correct');
+        expDiv.style.display='block';
+        expDiv.innerHTML = `<strong style="color:green">Helyes.</strong> <div style="margin-top:6px">${item.explain}</div>`;
+      } else {
+        card.classList.add('wrong');
+        expDiv.style.display='block';
+        expDiv.innerHTML = `<strong style="color:red">Helytelen.</strong> Helyes válasz: <b>${answers[idx].correct}</b><div style="margin-top:6px">${item.explain}</div>`;
+      }
+    }
+  });
+  // compile wrongs
+  const answeredCount = Object.keys(answers).length;
+  const correctCount = Object.values(answers).filter(x=>x.ok).length;
+  const pct = answeredCount===0?0:Math.round((correctCount/answeredCount)*100);
+  document.getElementById('sumAnsweredCount').textContent = answeredCount;
+  document.getElementById('sumCorrectCount').textContent = correctCount;
+  document.getElementById('sumPercent').textContent = pct+'%';
+  document.getElementById('sumTotalShown').textContent = shown.length;
+
+  const wrongs = Object.values(answers).filter(x=>!x.ok);
+  const wrongBlock = document.getElementById('wrongBlock');
+  wrongBlock.innerHTML = '';
+  if(wrongs.length){
+    wrongBlock.innerHTML = '<h4>Hibás válaszok (javított listával):</h4><div class="wrongList">';
+    wrongs.forEach((w,i)=>{
+      wrongBlock.innerHTML += `<p><strong>${i+1}.</strong> ${w.q}<br><em>${w.hu}</em><br><strong>Te:</strong> ${w.user || '(üres)'}<br><strong>Helyes:</strong> ${w.correct}<br><small style="display:block;margin-top:6px">${w.explain}</small></p>`;
+    });
+    wrongBlock.innerHTML += '</div>';
+  } else {
+    wrongBlock.innerHTML = '<p>Gratulálok! Minden megadott válasz helyes volt.</p>';
+  }
+
+  document.getElementById('summary').style.display = 'block';
+  // disable further adding of new questions via Next
+  document.getElementById('globalNext').disabled = true;
+  // also disable per-card Next buttons
+  document.querySelectorAll('.buttons button').forEach(b=>{
+    if(b.textContent.trim()==='Következő') b.disabled = true;
+  });
+}
+
+function restart(){
+  document.getElementById('globalNext').disabled = false;
+  document.getElementById('globalFinish').disabled = false;
+  preparePool();
+  renderNext();
+  document.getElementById('summary').style.display = 'none';
+  // re-enable buttons if any disabled
+  document.querySelectorAll('button').forEach(b=>b.disabled=false);
+}
+
+document.getElementById('globalNext').addEventListener('click', renderNext);
+document.getElementById('globalFinish').addEventListener('click', finishTest);
+document.getElementById('globalRestart').addEventListener('click', function(){ if(confirm('Újra szeretnéd kezdeni? Az eddigi válaszok törlődnek.')) restart(); });
+document.getElementById('restartBtn').addEventListener('click', function(){ if(confirm('Újra szeretnéd kezdeni? Az eddigi válaszok törlődnek.')) restart(); });
+document.getElementById('shuffle').addEventListener('change', ()=>{
+  preparePool();
+  renderNext();
+});
+
+// init
+preparePool();
+renderNext();
+
+</script>
+</body>
+</html>
