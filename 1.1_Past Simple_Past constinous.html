@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gyakorló: múlt igeidők — Past Simple / Continuous / Perfect / Perfect Continuous</title>
+<style>
+  :root{--bg:#f6f8fb;--card:#fff;--accent:#0b74de;--good:#d4f8d4;--bad:#ffd6d6;--muted:#666}
+  body{font-family:Inter,system-ui,Roboto,Arial;margin:18px;background:var(--bg);color:#111}
+  h1{color:var(--accent);margin:0 0 6px;font-size:1.4rem}
+  .card{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(12,24,40,.06);margin-bottom:12px;max-width:960px}
+  .controls{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+  button{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+  button.ghost{background:#e9f2ff;color:var(--accent);border:1px solid #cfe4ff}
+  .qcard{padding:12px;border-radius:8px;background:linear-gradient(180deg,#fff,#fbfdff);margin-bottom:10px;border:1px solid #eef6ff}
+  .translation{font-style:italic;color:var(--muted);margin-top:6px}
+  input[type=text]{padding:8px;border-radius:6px;border:1px solid #d1d7e0;width:100%;max-width:720px;box-sizing:border-box}
+  .buttons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .explain{background:#f0f8ff;padding:10px;border-left:4px solid var(--accent);border-radius:6px;margin-top:8px;display:none}
+  .correct{border-left:6px solid #43b77a;background:#f0fff4}
+  .wrong{border-left:6px solid #f26b6b;background:#fff5f5}
+  #summary{display:none;margin-top:12px;padding:12px;background:#fff;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.04)}
+  .wrongList p{margin:8px 0;padding:8px;background:#fff5f5;border-radius:6px}
+  .statsRow{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+  .small{font-size:.9rem;color:var(--muted)}
+  .topControls{position:sticky;top:12px;padding:6px 0;background:transparent;z-index:5}
+  @media(max-width:640px){input[type=text]{width:100%}}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="topControls">
+      <div class="controls">
+        <button id="globalNext" class="ghost">Következő</button>
+        <button id="globalFinish" class="ghost">Befejezem</button>
+        <button id="globalRestart" class="ghost">Újrakezd</button>
+        <label style="display:flex;align-items:center;gap:8px;margin-left:auto"><input type="checkbox" id="shuffle" checked> <span class="small">Véletlenszerű sorrend</span></label>
+      </div>
+    </div>
+
+    <h1>Gyakorló: múlt igeidők</h1>
+    <p class="small">Időtartam: <strong>Past Simple, Past Continuous</strong>. Írd be a hiányzó igealakot (pl. <code>worked</code>, <code>was working</code>, <code>had finished</code>, <code>had been working</code>). Azonnal kapsz visszajelzést és magyarázatot. A „Következő” gomb új kérdést ad hozzá az oldal aljára; az előzőek megmaradnak.</p>
+
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:6px">
+      <div class="small">Kérdések száma: <span id="totalCount">0</span></div>
+      <div style="margin-left:auto" class="small">Megjelenített: <span id="totalShown">0</span> • Megválaszolt: <span id="answeredCount">0</span> • Helyes: <span id="correctCount">0</span> • <span id="percent">0%</span></div>
+    </div>
+
+    <div id="quizArea"></div>
+
+    <div id="summary" class="card">
+      <h3>Összegzés</h3>
+      <div class="statsRow">
+        <div><strong>Megjelenített:</strong> <span id="sumTotalShown">0</span></div>
+        <div><strong>Megválaszolt:</strong> <span id="sumAnsweredCount">0</span></div>
+        <div><strong>Helyes:</strong> <span id="sumCorrectCount">0</span></div>
+        <div><strong>Százalék:</strong> <span id="sumPercent">0%</span></div>
+      </div>
+      <div id="wrongBlock"></div>
+      <div style="margin-top:10px"><button id="restartBtn" class="ghost">Újrakezd</button></div>
+    </div>
+  </div>
+
+<script>
+/* ====== Kérdésbank (40 tétel: 10-10 minden múlt igeidőből) ====== */
+const BANK = [
+  /* Past Simple */
+{ q: "I ______ (lose) my keys yesterday.", a: ["lost"], tense:"Past Simple", hu:"Tegnap elvesztettem a kulcsaimat.", explain:"Past Simple — befejezett múltbeli esemény, rendhagyó ige (lose → lost)." },
+{ q: "She ______ (finish) her homework before dinner.", a: ["finished"], tense:"Past Simple", hu:"Befejezte a házi feladatát vacsora előtt.", explain:"Past Simple — múltbeli befejezett cselekvés, regular: -ed." },
+{ q: "They ______ (not / go) to school last Monday.", a: ["did not go","didn't go"], tense:"Past Simple", hu:"Múlt hétfőn nem mentek iskolába.", explain:"Tagadás: did not + alapige." },
+{ q: "______ he ______ (call) you yesterday?", a: ["did he call"], tense:"Past Simple", hu:"Tegnap felhívott téged?", explain:"Kérdés: Did + alany + alapige." },
+{ q: "We ______ (meet) at the bus stop.", a: ["met"], tense:"Past Simple", hu:"A buszmegállóban találkoztunk.", explain:"Egyszeri múltbeli esemény, rendhagyó ige: meet → met." },
+{ q: "She ______ (not / like) the film.", a: ["did not like","didn't like"], tense:"Past Simple", hu:"Nem tetszett neki a film.", explain:"Tagadás did not + alapige." },
+{ q: "They ______ (arrive) home late at night.", a: ["arrived"], tense:"Past Simple", hu:"Késő este érkeztek haza.", explain:"Regular ige, múlt idő: -ed." },
+{ q: "I ______ (drink) too much coffee this morning.", a: ["drank"], tense:"Past Simple", hu:"Ma reggel túl sok kávét ittam.", explain:"Past Simple — múltbeli tény, rendhagyó ige (drink → drank)." },
+{ q: "He ______ (open) the window because it was hot.", a: ["opened"], tense:"Past Simple", hu:"Kinyitotta az ablakot, mert meleg volt.", explain:"Egyszeri múltbeli cselekvés." },
+{ q: "They ______ (not / see) each other for years.", a: ["did not see","didn't see"], tense:"Past Simple", hu:"Évek óta nem látták egymást.", explain:"Tagadás múltban: did not + alapige." },
+{ q: "I ______ (find) a wallet on the street.", a: ["found"], tense:"Past Simple", hu:"Találtam egy pénztárcát az utcán.", explain:"Múltbeli esemény, rendhagyó ige (find → found)." },
+{ q: "She ______ (study) French at university.", a: ["studied"], tense:"Past Simple", hu:"Franciát tanult az egyetemen.", explain:"Regular ige: -ed múltidő." },
+{ q: "We ______ (not / have) enough time.", a: ["did not have","didn't have"], tense:"Past Simple", hu:"Nem volt elég időnk.", explain:"Tagadás did not + alapige (have)." },
+{ q: "______ you ______ (enjoy) your trip?", a: ["did you enjoy"], tense:"Past Simple", hu:"Élvezted az utazást?", explain:"Kérdő szerkezet múltban: Did + alany + alapige." },
+{ q: "He ______ (break) his phone last week.", a: ["broke"], tense:"Past Simple", hu:"Múlt héten eltörte a telefonját.", explain:"Múltbeli esemény, rendhagyó ige (break → broke)." },
+{ q: "I ______ (stay) at home all day.", a: ["stayed"], tense:"Past Simple", hu:"Egész nap otthon maradtam.", explain:"Regular múlt: -ed." },
+{ q: "They ______ (choose) the blue one.", a: ["chose"], tense:"Past Simple", hu:"A kéket választották.", explain:"Rendhagyó ige (choose → chose)." },
+{ q: "She ______ (not / tell) me the truth.", a: ["did not tell","didn't tell"], tense:"Past Simple", hu:"Nem mondta el az igazat.", explain:"Tagadás múltban: did not + tell." },
+{ q: "We ______ (travel) to Italy last summer.", a: ["traveled","travelled"], tense:"Past Simple", hu:"Tavaly nyáron Olaszországba utaztunk.", explain:"Past Simple — múltbeli utazás; mind US/UK írásmód helyes." },
+{ q: "He ______ (forget) his umbrella at home.", a: ["forgot"], tense:"Past Simple", hu:"Otthon felejtette az esernyőjét.", explain:"Rendhagyó ige (forget → forgot)." },
+
+{ q: "I ______ (write) a letter to my friend yesterday.", a: ["wrote"], tense:"Past Simple", hu:"Tegnap levelet írtam a barátomnak.", explain:"Múltbeli befejezett cselekvés, rendhagyó ige (write → wrote)." },
+{ q: "She ______ (clean) her room last weekend.", a: ["cleaned"], tense:"Past Simple", hu:"Múlt hétvégén kitakarította a szobáját.", explain:"Regular múlt: -ed." },
+{ q: "They ______ (not / watch) the movie last night.", a: ["did not watch","didn't watch"], tense:"Past Simple", hu:"Tegnap este nem nézték meg a filmet.", explain:"Tagadás: did not + alapige." },
+{ q: "______ he ______ (buy) a new car last month?", a: ["did he buy"], tense:"Past Simple", hu:"Vett új autót múlt hónapban?", explain:"Kérdés: Did + alany + alapige." },
+{ q: "We ______ (see) a beautiful rainbow yesterday.", a: ["saw"], tense:"Past Simple", hu:"Tegnap láttunk egy gyönyörű szivárványt.", explain:"Múltbeli egyszeri esemény, rendhagyó ige (see → saw)." },
+{ q: "She ______ (not / answer) the phone this morning.", a: ["did not answer","didn't answer"], tense:"Past Simple", hu:"Ma reggel nem vette fel a telefont.", explain:"Tagadás múltban: did not + alapige." },
+{ q: "I ______ (start) learning Spanish last year.", a: ["started"], tense:"Past Simple", hu:"Tavaly kezdtem el spanyolul tanulni.", explain:"Regular múlt: -ed." },
+{ q: "He ______ (forget) to bring his notebook.", a: ["forgot"], tense:"Past Simple", hu:"Elfelejtette elhozni a füzetét.", explain:"Rendhagyó ige: forget → forgot." },
+{ q: "They ______ (invite) us to their wedding.", a: ["invited"], tense:"Past Simple", hu:"Meghívtak minket az esküvőjükre.", explain:"Regular múlt: -ed." },
+{ q: "I ______ (not / see) her at the party.", a: ["did not see","didn't see"], tense:"Past Simple", hu:"Nem láttam őt a buliban.", explain:"Tagadás did not + alapige." },
+{ q: "We ______ (win) the football match last Sunday.", a: ["won"], tense:"Past Simple", hu:"Megnyertük a focimeccset múlt vasárnap.", explain:"Rendhagyó ige: win → won." },
+{ q: "She ______ (teach) English for five years.", a: ["taught"], tense:"Past Simple", hu:"Öt évig tanított angolt.", explain:"Rendhagyó ige: teach → taught." },
+{ q: "They ______ (not / come) to the meeting.", a: ["did not come","didn't come"], tense:"Past Simple", hu:"Nem jöttek el a megbeszélésre.", explain:"Tagadás did not + alapige." },
+{ q: "______ you ______ (enjoy) the concert last night?", a: ["did you enjoy"], tense:"Past Simple", hu:"Élvezted a koncertet tegnap este?", explain:"Kérdés múltban: Did + alany + alapige." },
+{ q: "I ______ (break) my phone yesterday.", a: ["broke"], tense:"Past Simple", hu:"Tegnap eltörtem a telefonom.", explain:"Rendhagyó ige: break → broke." },
+{ q: "He ______ (work) late last night.", a: ["worked"], tense:"Past Simple", hu:"Tegnap este sokáig dolgozott.", explain:"Regular múlt: -ed." },
+{ q: "They ______ (not / visit) the museum.", a: ["did not visit","didn't visit"], tense:"Past Simple", hu:"Nem látogatták meg a múzeumot.", explain:"Tagadás múltban." },
+{ q: "She ______ (buy) a gift for her friend.", a: ["bought"], tense:"Past Simple", hu:"Vett egy ajándékot a barátjának.", explain:"Rendhagyó ige: buy → bought." },
+{ q: "We ______ (leave) the party early.", a: ["left"], tense:"Past Simple", hu:"Korán elmentünk a buliból.", explain:"Rendhagyó ige: leave → left." },
+{ q: "I ______ (hear) a strange noise last night.", a: ["heard"], tense:"Past Simple", hu:"Tegnap este furcsa zajt hallottam.", explain:"Rendhagyó ige: hear → heard." },
+
+  { q: "I ______ (visit) my grandparents last weekend.", a: ["visited"], tense:"Past Simple", hu:"Múlt hétvégén meglátogattam a nagyszüleimet.", explain:"Past Simple — múltbeli, befejezett esemény. Képzése: ige múlt ideje (regular: -ed / irregular)."},
+  { q: "She ______ (buy) a new dress yesterday.", a: ["bought"], tense:"Past Simple", hu:"Tegnap vett egy új ruhát.", explain:"Past Simple — egyszeri múltbeli esemény (bought: rendhagyó)."},
+  { q: "They ______ (not / come) to the party.", a: ["did not come","didn't come"], tense:"Past Simple", hu:"Nem jöttek el a buliba.", explain:"Tagadás: did not + alapige."},
+  { q: "______ you ______ (see) that film last month?", a: ["did you see","did you see that film"], tense:"Past Simple", hu:"Láttad azt a filmet múlt hónapban?", explain:"Kérdés: Did + alany + alapige."},
+  { q: "He ______ (tell) me a secret.", a: ["told"], tense:"Past Simple", hu:"Elmondott egy titkot.", explain:"Past Simple — befejezett múlt (told: rendhagyó)."},
+  { q: "We ______ (move) to Budapest in 2015.", a: ["moved"], tense:"Past Simple", hu:"2015-ben költöztünk Budapestre.", explain:"Időponthoz kötött múltbeli esemény."},
+  { q: "I ______ (not / understand) the question.", a: ["did not understand","didn't understand"], tense:"Past Simple", hu:"Nem értettem a kérdést.", explain:"Tagadás múltban: did not + alapige."},
+  { q: "She ______ (break) her leg when she was young.", a: ["broke"], tense:"Past Simple", hu:"Eltörte a lábát, amikor fiatal volt.", explain:"Múltbeli esemény, egyszeri történés."},
+  { q: "They ______ (arrive) late yesterday.", a: ["arrived"], tense:"Past Simple", hu:"Tegnap késve érkeztek.", explain:"Regular past: -ed végződés."},
+  { q: "I ______ (decide) to study medicine.", a: ["decided"], tense:"Past Simple", hu:"Úgy döntöttem, orvostudományt tanulok.", explain:"Döntés a múltban: decided."},
+
+  /* Past Continuous */
+{ q: "I ______ (watch) TV when you arrived.", a: ["was watching"], tense:"Past Continuous", hu:"Tévét néztem, amikor megérkeztél.", explain:"Folyamatban lévő múltbeli cselekvés, amit másik esemény megszakított." },
+{ q: "They ______ (dance) all night.", a: ["were dancing"], tense:"Past Continuous", hu:"Egész éjjel táncoltak.", explain:"Hosszabb ideig tartó múltbeli folyamat." },
+{ q: "She ______ (not / work) at that time.", a: ["was not working","wasn't working"], tense:"Past Continuous", hu:"Akkor épp nem dolgozott.", explain:"Tagadás: was not + -ing." },
+{ q: "What ______ you ______ (talk) about when I came in?", a: ["were you talking"], tense:"Past Continuous", hu:"Miről beszéltetek, amikor beléptem?", explain:"Kérdés: were + alany + -ing." },
+{ q: "We ______ (have) dinner when the lights went out.", a: ["were having"], tense:"Past Continuous", hu:"Épp vacsoráztunk, amikor kialudtak a fények.", explain:"Folyamat megszakadása másik eseménnyel." },
+{ q: "He ______ (run) to catch the bus.", a: ["was running"], tense:"Past Continuous", hu:"Futott, hogy elérje a buszt.", explain:"Folyamatban lévő múltbeli cselekvés." },
+{ q: "It ______ (snow) all afternoon.", a: ["was snowing"], tense:"Past Continuous", hu:"Egész délután havazott.", explain:"Időjárás folyamatban a múltban." },
+{ q: "They ______ (not / sleep) when we called them.", a: ["were not sleeping","weren't sleeping"], tense:"Past Continuous", hu:"Nem aludtak, amikor felhívtuk őket.", explain:"Tagadás múltbeli folyamatban." },
+{ q: "I ______ (study) for the exam all evening.", a: ["was studying"], tense:"Past Continuous", hu:"Egész este a vizsgára tanultam.", explain:"Hosszabb folyamat múltban." },
+{ q: "While we ______ (walk) home, it started to rain.", a: ["were walking"], tense:"Past Continuous", hu:"Miközben hazafelé sétáltunk, elkezdett esni.", explain:"Folyamat + közbeszakító esemény." },
+{ q: "She ______ (cry) when I saw her.", a: ["was crying"], tense:"Past Continuous", hu:"Sírva találtam rá.", explain:"Éppen folyamatban lévő érzelem a múltban." },
+{ q: "They ______ (play) cards while waiting for dinner.", a: ["were playing"], tense:"Past Continuous", hu:"Kártyáztak, miközben a vacsorára vártak.", explain:"Folyamatos múlt, két párhuzamos esemény." },
+{ q: "He ______ (not / pay) attention in class.", a: ["was not paying","wasn't paying"], tense:"Past Continuous", hu:"Nem figyelt órán.", explain:"Tagadás folyamatban lévő cselekvésre." },
+{ q: "What ______ she ______ (wear) at the party?", a: ["was she wearing"], tense:"Past Continuous", hu:"Mit viselt a buliban?", explain:"Kérdés: was/were + alany + -ing." },
+{ q: "We ______ (sit) in the garden when it got dark.", a: ["were sitting"], tense:"Past Continuous", hu:"A kertben ültünk, amikor besötétedett.", explain:"Hosszabb folyamat, amit egy másik esemény zár le." },
+{ q: "I ______ (listen) to music all morning.", a: ["was listening"], tense:"Past Continuous", hu:"Egész délelőtt zenét hallgattam.", explain:"Tartós folyamat a múltban." },
+{ q: "They ______ (wait) for us at the station.", a: ["were waiting"], tense:"Past Continuous", hu:"A pályaudvaron vártak ránk.", explain:"Folyamatban lévő múltbeli cselekvés." },
+{ q: "He ______ (not / look) where he was going.", a: ["was not looking","wasn't looking"], tense:"Past Continuous", hu:"Nem nézett oda, amerre ment.", explain:"Folyamatban lévő figyelmetlenség múltban." },
+{ q: "What ______ you ______ (do) when I texted you?", a: ["were you doing"], tense:"Past Continuous", hu:"Mit csináltál, amikor írtam neked?", explain:"Kérdés — párhuzamos múltbeli esemény." },
+{ q: "She ______ (cook) when her friend arrived.", a: ["was cooking"], tense:"Past Continuous", hu:"Épp főzött, amikor megérkezett a barátnője.", explain:"Folyamat + megszakító esemény a múltban." },
+
+  { q: "I ______ (read) when you called me.", a: ["was reading"], tense:"Past Continuous", hu:"Épp olvastam, amikor felhívtál.", explain:"Past Continuous — was/were + -ing; folyamat egy adott pontban a múltban."},
+  { q: "They ______ (play) football at 5 pm yesterday.", a: ["were playing"], tense:"Past Continuous", hu:"Tegnap 5-kor fociztak.", explain:"Folyamatos múltbeli cselekvés adott időpontban."},
+  { q: "She ______ (not / listen) while I was talking.", a: ["was not listening","wasn't listening"], tense:"Past Continuous", hu:"Nem figyelt, miközben beszéltem.", explain:"Tagadás: was not / were not + -ing."},
+  { q: "What ______ you ______ (do) at 9 yesterday?", a: ["were you doing","what were you doing"], tense:"Past Continuous", hu:"Mit csináltál tegnap 9-kor?", explain:"Kérdés past continuous: were/was + alany + -ing."},
+  { q: "We ______ (cook) dinner when the guests arrived.", a: ["were cooking"], tense:"Past Continuous", hu:"Épp vacsorát főztünk, amikor megérkeztek a vendégek.", explain:"Folyamat megszakadása egy másik múltbeli eseménnyel."},
+  { q: "He ______ (drive) too fast and had an accident.", a: ["was driving"], tense:"Past Continuous", hu:"Túl gyorsan vezetett és balesete volt.", explain:"Cselekvés folyamata a múltban."},
+  { q: "It ______ (rain) while we were walking.", a: ["was raining"], tense:"Past Continuous", hu:"Eközben esett, miközben sétáltunk.", explain:"Időjárás a múlt folyamatában."},
+  { q: "They ______ (not / watch) TV; they were studying.", a: ["were not watching","weren't watching"], tense:"Past Continuous", hu:"Nem tévét néztek; tanultak.", explain:"Tagadás múltbeli folyamatosban."},
+  { q: "I ______ (wait) for the bus when I met Anna.", a: ["was waiting"], tense:"Past Continuous", hu:"A buszra vártam, amikor találkoztam Annával.", explain:"Folyamat + találkozás."},
+  { q: "While he ______ (sleep), someone called.", a: ["was sleeping"], tense:"Past Continuous", hu:"Miközben aludt, valaki hívott.", explain:"Egy esemény alatt zajló folyamat."},
+{ q: "I ______ (read) a book when she called me.", a: ["was reading"], tense:"Past Continuous", hu:"Épp olvastam, amikor felhívott.", explain:"Folyamatban lévő múltbeli cselekvés megszakítva egy másik eseménnyel." },
+{ q: "They ______ (play) in the garden all afternoon.", a: ["were playing"], tense:"Past Continuous", hu:"Egész délután a kertben játszottak.", explain:"Hosszabb folyamat múltban." },
+{ q: "She ______ (not / listen) when the teacher was talking.", a: ["was not listening","wasn't listening"], tense:"Past Continuous", hu:"Nem figyelt, amikor a tanár beszélt.", explain:"Tagadás: was not + -ing." },
+{ q: "What ______ you ______ (do) at 8 o'clock yesterday?", a: ["were you doing"], tense:"Past Continuous", hu:"Mit csináltál tegnap 8-kor?", explain:"Kérdés: were + alany + -ing." },
+{ q: "We ______ (have) breakfast when the phone rang.", a: ["were having"], tense:"Past Continuous", hu:"Épp reggeliztünk, amikor csörgött a telefon.", explain:"Folyamat megszakadása másik eseménnyel." },
+{ q: "He ______ (run) in the park at 6 pm.", a: ["was running"], tense:"Past Continuous", hu:"6-kor a parkban futott.", explain:"Folyamatban lévő múltbeli cselekvés." },
+{ q: "It ______ (rain) when we left the house.", a: ["was raining"], tense:"Past Continuous", hu:"Épp esett, amikor elhagytuk a házat.", explain:"Időjárás folyamatban múltban." },
+{ q: "They ______ (not / watch) TV when I came.", a: ["were not watching","weren't watching"], tense:"Past Continuous", hu:"Nem tévét néztek, amikor megérkeztem.", explain:"Tagadás múltbeli folyamatban." },
+{ q: "I ______ (study) all night for the exam.", a: ["was studying"], tense:"Past Continuous", hu:"Egész éjjel a vizsgára tanultam.", explain:"Hosszabb folyamat múltban." },
+{ q: "While she ______ (walk) home, she met an old friend.", a: ["was walking"], tense:"Past Continuous", hu:"Miközben hazafelé sétált, találkozott egy régi baráttal.", explain:"Folyamat + közbeszakító esemény." },
+{ q: "She ______ (cry) when I entered the room.", a: ["was crying"], tense:"Past Continuous", hu:"Éppen sírt, amikor beléptem a szobába.", explain:"Folyamatban lévő érzelem a múltban." },
+{ q: "They ______ (play) chess while waiting for the bus.", a: ["were playing"], tense:"Past Continuous", hu:"Sakkot játszottak, miközben a buszra vártak.", explain:"Párhuzamos múltbeli események." },
+{ q: "He ______ (not / pay) attention to the lesson.", a: ["was not paying","wasn't paying"], tense:"Past Continuous", hu:"Nem figyelt az órán.", explain:"Tagadás folyamatban lévő cselekvésre." },
+{ q: "What ______ she ______ (wear) at the wedding?", a: ["was she wearing"], tense:"Past Continuous", hu:"Mit viselt az esküvőn?", explain:"Kérdés: was/were + alany + -ing." },
+{ q: "We ______ (sit) on the balcony when it started to rain.", a: ["were sitting"], tense:"Past Continuous", hu:"A teraszon ültünk, amikor elkezdett esni.", explain:"Hosszabb folyamat + megszakító esemény." },
+{ q: "I ______ (listen) to music while studying.", a: ["was listening"], tense:"Past Continuous", hu:"Zenét hallgattam, miközben tanultam.", explain:"Tartós folyamat múltban." },
+{ q: "They ______ (wait) outside the cinema.", a: ["were waiting"], tense:"Past Continuous", hu:"A mozi előtt várakoztak.", explain:"Folyamatban lévő múltbeli cselekvés." },
+{ q: "He ______ (not / look) at the board.", a: ["was not looking","wasn't looking"], tense:"Past Continuous", hu:"Nem nézett a táblára.", explain:"Folyamatban lévő figyelmetlenség." },
+{ q: "What ______ you ______ (do) when I knocked at the door?", a: ["were you doing"], tense:"Past Continuous", hu:"Mit csináltál, amikor kopogtam az ajtón?", explain:"Kérdés — párhuzamos múltbeli esemény." },
+{ q: "She ______ (cook) dinner when her husband arrived.", a: ["was cooking"], tense:"Past Continuous", hu:"Épp főzött vacsorát, amikor megérkezett a férje.", explain:"Folyamat + megszakító esemény." }
+
+  
+];
+/* ====== logika ====== */
+let pool = [];
+let shown = [];    // store indices in pool that were rendered
+let answers = {};  // idx in pool -> {user, ok, correct, q, hu, explain, tense}
+
+function normalize(s){ return (s||'').toString().trim().toLowerCase().replace(/\s+/g,' '); }
+
+function preparePool(){
+  pool = BANK.map((t,i)=> ({...t, orig:i}));
+  if(document.getElementById('shuffle').checked) pool = shuffle(pool);
+  shown = [];
+  answers = {};
+  document.getElementById('quizArea').innerHTML = '';
+  document.getElementById('summary').style.display = 'none';
+  document.getElementById('totalCount').textContent = pool.length;
+  updateSummaryCounts();
+}
+
+function shuffle(a){
+  const b = a.slice();
+  for(let i=b.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [b[i],b[j]]=[b[j],b[i]];
+  }
+  return b;
+}
+
+function renderNext(){
+  if(pool.length===0) preparePool();
+  const idx = shown.length;
+  if(idx >= pool.length){ alert('Nincs több kérdés.'); return; }
+  const item = pool[idx];
+  const id = 'q'+idx;
+  const wrapper = document.createElement('div');
+  wrapper.className = 'qcard';
+  wrapper.id = 'card-'+idx;
+  wrapper.innerHTML = `
+    <div><strong>${idx+1}.</strong> ${item.q} <span style="float:right;color:var(--muted)">${item.tense}</span></div>
+    <div class="translation">${item.hu}</div>
+    <div style="margin-top:8px"><input type="text" id="${id}" placeholder="Írd be a választ..."></div>
+    <div class="buttons">
+      <button type="button" onclick="checkSingle(${idx})">Ellenőrzés</button>
+      <button type="button" onclick="renderNext()">Következő</button>
+      <button type="button" onclick="finishTest()">Befejezem</button>
+    </div>
+    <div id="exp-${idx}" class="explain"></div>
+  `;
+  document.getElementById('quizArea').appendChild(wrapper);
+  shown.push(idx);
+  updateSummaryCounts();
+  // scroll to new question a little
+  wrapper.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function checkSingle(idx){
+  const input = document.getElementById('q'+idx);
+  const raw = (input.value||'').trim();
+  const user = normalize(raw);
+  const item = pool[idx];
+  const corrects = (Array.isArray(item.a)? item.a : [item.a]).map(normalize);
+  const expDiv = document.getElementById('exp-'+idx);
+  const card = document.getElementById('card-'+idx);
+  const ok = corrects.includes(user);
+  answers[idx] = { user: raw, ok, correct: (Array.isArray(item.a)? item.a[0] : item.a), q: item.q, hu: item.hu, explain: item.explain, tense: item.tense };
+  if(ok){
+    card.classList.remove('wrong'); card.classList.add('correct');
+    expDiv.style.display='block';
+    expDiv.innerHTML = `<strong style="color:green">Helyes.</strong> <div style="margin-top:6px">${item.explain}</div>`;
+  } else {
+    card.classList.remove('correct'); card.classList.add('wrong');
+    expDiv.style.display='block';
+    expDiv.innerHTML = `<strong style="color:red">Helytelen.</strong> Helyes válasz: <b>${answers[idx].correct}</b><div style="margin-top:6px">${item.explain}</div>`;
+  }
+  updateSummaryCounts();
+}
+
+function updateSummaryCounts(){
+  const totalShown = shown.length;
+  const answeredCount = Object.keys(answers).length;
+  const correctCount = Object.values(answers).filter(x=>x.ok).length;
+  document.getElementById('totalShown').textContent = totalShown;
+  document.getElementById('answeredCount').textContent = answeredCount;
+  document.getElementById('correctCount').textContent = correctCount;
+  const pct = answeredCount===0?0:Math.round((correctCount/answeredCount)*100);
+  document.getElementById('percent').textContent = pct+'%';
+  document.getElementById('totalCount').textContent = pool.length;
+}
+
+function finishTest(){
+  // ensure any unanswered but filled fields are recorded
+  shown.forEach(idx=>{
+    if(!answers[idx]){
+      const raw = (document.getElementById('q'+idx)?.value||'').trim();
+      const user = normalize(raw);
+      const item = pool[idx];
+      const corrects = (Array.isArray(item.a)? item.a : [item.a]).map(normalize);
+      const ok = corrects.includes(user);
+      answers[idx] = { user: raw, ok, correct: (Array.isArray(item.a)? item.a[0] : item.a), q: item.q, hu: item.hu, explain: item.explain, tense: item.tense };
+      const expDiv = document.getElementById('exp-'+idx);
+      const card = document.getElementById('card-'+idx);
+      if(ok){
+        card.classList.add('correct');
+        expDiv.style.display='block';
+        expDiv.innerHTML = `<strong style="color:green">Helyes.</strong> <div style="margin-top:6px">${item.explain}</div>`;
+      } else {
+        card.classList.add('wrong');
+        expDiv.style.display='block';
+        expDiv.innerHTML = `<strong style="color:red">Helytelen.</strong> Helyes válasz: <b>${answers[idx].correct}</b><div style="margin-top:6px">${item.explain}</div>`;
+      }
+    }
+  });
+  // compile wrongs
+  const answeredCount = Object.keys(answers).length;
+  const correctCount = Object.values(answers).filter(x=>x.ok).length;
+  const pct = answeredCount===0?0:Math.round((correctCount/answeredCount)*100);
+  document.getElementById('sumAnsweredCount').textContent = answeredCount;
+  document.getElementById('sumCorrectCount').textContent = correctCount;
+  document.getElementById('sumPercent').textContent = pct+'%';
+  document.getElementById('sumTotalShown').textContent = shown.length;
+
+  const wrongs = Object.values(answers).filter(x=>!x.ok);
+  const wrongBlock = document.getElementById('wrongBlock');
+  wrongBlock.innerHTML = '';
+  if(wrongs.length){
+    wrongBlock.innerHTML = '<h4>Hibás válaszok (javított listával):</h4><div class="wrongList">';
+    wrongs.forEach((w,i)=>{
+      wrongBlock.innerHTML += `<p><strong>${i+1}.</strong> ${w.q}<br><em>${w.hu}</em><br><strong>Te:</strong> ${w.user || '(üres)'}<br><strong>Helyes:</strong> ${w.correct}<br><small style="display:block;margin-top:6px">${w.explain}</small></p>`;
+    });
+    wrongBlock.innerHTML += '</div>';
+  } else {
+    wrongBlock.innerHTML = '<p>Gratulálok! Minden megadott válasz helyes volt.</p>';
+  }
+
+  document.getElementById('summary').style.display = 'block';
+  // disable further adding of new questions via Next
+  document.getElementById('globalNext').disabled = true;
+  // also disable per-card Next buttons
+  document.querySelectorAll('.buttons button').forEach(b=>{
+    if(b.textContent.trim()==='Következő') b.disabled = true;
+  });
+}
+
+function restart(){
+  document.getElementById('globalNext').disabled = false;
+  document.getElementById('globalFinish').disabled = false;
+  preparePool();
+  renderNext();
+  document.getElementById('summary').style.display = 'none';
+  // re-enable buttons if any disabled
+  document.querySelectorAll('button').forEach(b=>b.disabled=false);
+}
+
+document.getElementById('globalNext').addEventListener('click', renderNext);
+document.getElementById('globalFinish').addEventListener('click', finishTest);
+document.getElementById('globalRestart').addEventListener('click', function(){ if(confirm('Újra szeretnéd kezdeni? Az eddigi válaszok törlődnek.')) restart(); });
+document.getElementById('restartBtn').addEventListener('click', function(){ if(confirm('Újra szeretnéd kezdeni? Az eddigi válaszok törlődnek.')) restart(); });
+document.getElementById('shuffle').addEventListener('change', ()=>{
+  preparePool();
+  renderNext();
+});
+
+// init
+preparePool();
+renderNext();
+
+</script>
+</body>
+</html>
