@@ -271,6 +271,292 @@ function endQuiz() {
 
 displayWords();
 </script>
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8" />
+<title>Szótanuló – Angol/Magyar</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #e8f0ff;
+        margin: 0;
+        padding: 20px;
+        color: #003366;
+    }
+    h1, h2 {
+        text-align: center;
+    }
+    .container {
+        max-width: 900px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 0 12px rgba(0,0,0,0.2);
+    }
+    input, button, select {
+        padding: 10px;
+        margin: 6px 0;
+        border-radius: 8px;
+        border: 1px solid #004c99;
+        width: 100%;
+    }
+    button {
+        background: #0066cc;
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    button:hover {
+        background: #004c99;
+    }
+
+    /* 🔴 Befejezem gomb — piros */
+    #endBtn {
+        background: #cc0000 !important;
+        border-color: #990000 !important;
+    }
+    #endBtn:hover {
+        background: #990000 !important;
+    }
+
+    .word-list {
+        margin-top: 20px;
+        padding: 10px;
+        background: #f4faff;
+        border-radius: 8px;
+        max-height: 250px;
+        overflow-y: auto;
+        border: 1px solid #b3d1ff;
+    }
+    .quiz-box {
+        margin-top: 20px;
+        padding: 20px;
+        background: #eef6ff;
+        border: 2px solid #99c2ff;
+        border-radius: 10px;
+    }
+    .hidden {
+        display: none;
+    }
+    #liveScore {
+        font-size: 18px;
+        font-weight: bold;
+        color: #003366;
+        margin-bottom: 10px;
+    }
+</style>
+
+</head>
+
+<body>
+<div class="container">
+    <h1>Szótanuló – Angol/Magyar</h1>
+
+    <h2>Új szó hozzáadása</h2>
+    <input id="engInput" placeholder="Angol szó">
+    <input id="hunInput" placeholder="Magyar fordítás (több is jöhet)">
+    <button onclick="addWord()">Hozzáadás</button>
+    
+    <h2>Kikérdezés</h2>
+    <select id="direction">
+        <option value="eng">Angol → Magyar</option>
+        <option value="hun">Magyar → Angol</option>
+    </select>
+    <button onclick="startQuiz()">Kikérdezés indítása</button>
+
+    <div id="quizBox" class="quiz-box hidden">
+
+        <!-- 🔵 Élő számláló -->
+        <div id="liveScore"></div>
+
+        <p id="quizQuestion"></p>
+        <button id="speakBtn">▶ Kiejtés</button>
+        <input id="quizAnswer" placeholder="Írd be a választ...">
+        <button onclick="checkAnswer()">Válasz elküldése</button>
+        <p id="quizFeedback"></p>
+
+        <button id="nextBtn" class="hidden" onclick="nextQuestion()">Következő</button>
+        <button id="endBtn" class="hidden" onclick="endQuiz()">Befejezem</button>
+    </div>
+
+    <h3 id="score"></h3>
+
+    <h2>Szótár</h2>
+    <div class="word-list" id="wordList">Nincs rögzített szó.</div>
+
+    <button onclick="exportWords()">Exportálás JSON</button>
+    <input type="file" id="importFile" accept=".json" />
+    <button onclick="importWords()">Importálás JSON</button>
+
+</div>
+
+<script>
+let words = JSON.parse(localStorage.getItem("words")) || [];
+let quizIndex = 0;
+let quizOrder = [];
+let correct = 0;
+let wrong = 0;
+let currentDirection = "eng";
+let wrongThisSession = [];   // 🔴 csak az adott kikérdezés hibái
+
+function speak(text, lang) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang;
+    speechSynthesis.speak(u);
+}
+
+function save() {
+    localStorage.setItem("words", JSON.stringify(words));
+    displayWords();
+}
+
+function displayWords() {
+    const list = document.getElementById("wordList");
+    if (words.length === 0) {
+        list.innerHTML = "Nincs rögzített szó.";
+        return;
+    }
+    list.innerHTML = words.map(w => `${w.eng} → ${w.hun}`).join("<br>");
+}
+
+function addWord() {
+    const eng = document.getElementById("engInput").value.trim();
+    const hun = document.getElementById("hunInput").value.trim();
+    if (!eng || !hun) return alert("Mindkét mezőt töltsd ki!");
+    
+    words.push({ eng, hun, stats: { correct: 0, wrong: 0 } });
+    document.getElementById("engInput").value = "";
+    document.getElementById("hunInput").value = "";
+    save();
+}
+
+function exportWords() {
+    const blob = new Blob([JSON.stringify(words, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "szavak.json";
+    a.click();
+}
+
+function importWords() {
+    const file = document.getElementById("importFile").files[0];
+    if (!file) return alert("Nincs kiválasztott fájl!");
+
+    const reader = new FileReader();
+    reader.onload = e => {
+        try {
+            const imported = JSON.parse(e.target.result);
+            if (!Array.isArray(imported)) throw new Error();
+            words = imported;
+            save();
+            alert("Sikeres importálás!");
+        } catch {
+            alert("Hibás JSON formátum!");
+        }
+    };
+    reader.readAsText(file);
+}
+
+function startQuiz() {
+    if (words.length === 0) return alert("Nincs szó a kikérdezéshez!");
+    
+    currentDirection = document.getElementById("direction").value;
+
+    quizOrder = [...words].sort(() => Math.random() - 0.5);
+    quizIndex = 0;
+    correct = 0;
+    wrong = 0;
+    wrongThisSession = [];     // 🔴 töröljük a korábbi hibákat
+
+    document.getElementById("score").innerHTML = "";
+    document.getElementById("liveScore").innerHTML = "0 / 0";
+    
+    document.getElementById("quizBox").classList.remove("hidden");
+    nextQuestion();
+}
+
+function updateLiveScore() {
+    document.getElementById("liveScore").innerHTML = `${correct} / ${correct + wrong}`;
+}
+
+function nextQuestion() {
+    if (quizIndex >= quizOrder.length) return endQuiz();
+
+    document.getElementById("quizFeedback").innerHTML = "";
+    document.getElementById("nextBtn").classList.add("hidden");
+    document.getElementById("endBtn").classList.add("hidden");
+    document.getElementById("quizAnswer").value = "";
+    
+    const word = quizOrder[quizIndex];
+    const text = currentDirection === "eng" ? word.eng : word.hun;
+    const lang = currentDirection === "eng" ? "en-US" : "hu-HU";
+
+    document.getElementById("quizQuestion").innerHTML = text;
+
+    speak(text, lang);
+
+    document.getElementById("speakBtn").onclick = () => speak(text, lang);
+
+    document.getElementById("quizAnswer").focus();
+}
+
+function checkAnswer() {
+    const word = quizOrder[quizIndex];
+    const answer = document.getElementById("quizAnswer").value.trim().toLowerCase();
+
+    const correctAnswer = (currentDirection === "eng" ? word.hun : word.eng).toLowerCase();
+    const success = correctAnswer.includes(answer);
+
+    const feedback = document.getElementById("quizFeedback");
+    if (success) {
+        feedback.style.color = "green";
+        feedback.innerHTML = "✅ Helyes!";
+        correct++;
+        word.stats.correct++;
+    } else {
+        feedback.style.color = "red";
+        feedback.innerHTML = `❌ Helytelen! Helyes: ${correctAnswer}`;
+        wrong++;
+        word.stats.wrong++;
+        wrongThisSession.push(word);   // 🔴 csak a mostani hibákat tároljuk
+    }
+
+    updateLiveScore();
+    save();
+
+    quizIndex++;
+
+    document.getElementById("nextBtn").classList.remove("hidden");
+    document.getElementById("endBtn").classList.remove("hidden");
+}
+
+function endQuiz() {
+    const total = correct + wrong;
+    const pct = total ? Math.round(correct / total * 100) : 0;
+
+    document.getElementById("score").innerHTML =
+        `🌟 Eredmény: ${correct}/${total} (${pct}%)`;
+
+    document.getElementById("quizBox").classList.add("hidden");
+
+    // 🔴 Csak a most elrontott szavak
+    const list = document.getElementById("wordList");
+    if (wrongThisSession.length === 0) {
+        list.innerHTML = "Minden szó helyesen lett megválaszolva!";
+    } else {
+        list.innerHTML = wrongThisSession.map(w => 
+            `<span style="color:red">${w.eng} → ${w.hun}</span>`
+        ).join("<br>");
+    }
+}
+
+displayWords();
+</script>
+<a href="index.html" class="home-button">🏠 Főoldal</a>
 
 </body>
 </html>
+
