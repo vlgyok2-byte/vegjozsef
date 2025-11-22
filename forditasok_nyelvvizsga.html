@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Alapfokú nyelvvizsga — 100 kérdéses gyakorló (60 perc)</title>
+<style>
+  :root{--bg:#f6f8fb;--card:#fff;--accent:#0b74de;--good:#d4f8d4;--bad:#ffd6d6;--muted:#666}
+  body{font-family:Inter,system-ui,Roboto,Arial;margin:18px;background:var(--bg);color:#111}
+  h1{color:var(--accent);margin:0 0 6px;font-size:1.4rem}
+  .card{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(12,24,40,.06);margin-bottom:12px;max-width:1100px}
+  .controls{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+  button{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+  button.ghost{background:#e9f2ff;color:var(--accent);border:1px solid #cfe4ff}
+  .qcard{padding:12px;border-radius:8px;background:linear-gradient(180deg,#fff,#fbfdff);margin-bottom:10px;border:1px solid #eef6ff}
+  .translation{font-style:italic;color:var(--muted);margin-top:6px}
+  input[type=text]{padding:8px;border-radius:6px;border:1px solid #d1d7e0;width:100%;max-width:720px;box-sizing:border-box}
+  .buttons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .explain{background:#f0f8ff;padding:10px;border-left:4px solid var(--accent);border-radius:6px;margin-top:8px;display:none}
+  .correct{border-left:6px solid #43b77a;background:#f0fff4}
+  .wrong{border-left:6px solid #f26b6b;background:#fff5f5}
+  #summary{display:none;margin-top:12px;padding:12px;background:#fff;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.04)}
+  .wrongList p{margin:8px 0;padding:8px;background:#fff5f5;border-radius:6px}
+  .statsRow{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+  .small{font-size:.9rem;color:var(--muted)}
+  .timer{font-weight:700;color:var(--accent)}
+  @media(max-width:640px){input[type=text]{width:100%}}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Alapfokú nyelvvizsga — gyakorló (100 kérdés)</h1>
+    <p class="small">
+      <strong>Magyar / English:</strong>
+      Ez a gyakorló 100 vegyes feladatot tartalmaz (A2–B1). Írd be a hiányzó igealakot vagy a teljes választ. Azonnal kapsz visszajelzést. A „Következő” gomb új kérdést ad hozzá az oldal aljára; előzőek megmaradnak. A „Befejezem” gomb összesíti az eredményt és megmutatja a javításokat.
+      <br><em>Timer: <span id="timer" class="timer">60:00</span> (automatikus befejezés lejáratkor)</em>
+    </p>
+
+    <div class="controls">
+      <label style="display:flex;align-items:center;gap:8px">
+        <input type="checkbox" id="shuffle" checked> <span class="small">Véletlenszerű sorrend / Shuffle</span>
+      </label>
+      <div style="margin-left:auto" class="small">Kérdések összesen: <span id="totalCount">100</span></div>
+    </div>
+
+    <div id="quizArea"></div>
+
+    <div id="summary" class="card">
+      <h3>Összegzés / Summary</h3>
+      <div class="statsRow">
+        <div><strong>Megjelenített / Shown:</strong> <span id="totalShown">0</span></div>
+        <div><strong>Megválaszolt / Answered:</strong> <span id="answeredCount">0</span></div>
+        <div><strong>Helyes / Correct:</strong> <span id="correctCount">0</span></div>
+        <div><strong>Százalék / %:</strong> <span id="percent">0%</span></div>
+      </div>
+      <div id="wrongBlock"></div>
+      <div style="margin-top:10px"><button id="restartBtn" class="ghost">Újrakezd / Restart</button></div>
+    </div>
+  </div>
+
+<script>
+/* ====== Kérdésbank: 100 tétel (A2-B1 vegyes) ======
+   Minden tétel: { q: "...", a: ["...","..."], hu: "...", explain: "..." }
+   (a tömb rövidebb változata itt beágyazva; valódi fájlhoz külön JSON is küldhető)
+*/
+const BANK = [
+  { q:"I ______ (call) you tomorrow.", a:["will call"], hu:"Holnap felhívlak.", explain:"Future Simple — will + infinitive." },
+  { q:"She ______ (arrive) next week.", a:["will arrive"], hu:"A jövő héten érkezik.", explain:"Future Simple: future fact." },
+  { q:"We ______ (be) at the party by 9.", a:["will be"], hu:"9-re ott leszünk a buliban.", explain:"Future Simple / state." },
+  { q:"They ______ (visit) us last weekend.", a:["visited"], hu:"Múlt hétvégén meglátogattak minket.", explain:"Past Simple — finished action." },
+  { q:"He ______ (not / go) to work yesterday.", a:["did not go","didn't go"], hu:"Tegnap nem ment dolgozni.", explain:"Past Simple negation." },
+  { q:"I ______ (study) now.", a:["am studying","i am studying"], hu:"Most tanulok.", explain:"Present Continuous — action in progress." },
+  { q:"She usually ______ (work) on Mondays.", a:["works"], hu:"Általában hétfőn dolgozik.", explain:"Present Simple — habit." },
+  { q:"By the time you get home I ______ (finish) my homework.", a:["will have finished"], hu:"Mire hazaérsz, be fogom fejezni a házit.", explain:"Future Perfect — completed before a point." },
+  { q:"I ______ (have) breakfast before I left.", a:["had had"], hu:"Reggeliztem mielőtt elmentem.", explain:"Past Perfect — earlier past action." },
+  { q:"They ______ (live) here since 2018.", a:["have lived","have been living"], hu:"2018 óta itt élnek.", explain:"Present Perfect (or continuous) for duration." },
+
+  { q:"What ______ you ______ (do) at 9 pm yesterday?", a:["were you doing","what were you doing"], hu:"Mit csináltál tegnap 9-kor?", explain:"Past Continuous — action in progress at a time." },
+  { q:"I ______ (never / be) to London.", a:["have never been"], hu:"Sohasem voltam Londonban.", explain:"Present Perfect — experience." },
+  { q:"She ______ (cook) dinner at the moment.", a:["is cooking","is cookin","is cooking"], hu:"Most vacsorát főz.", explain:"Present Continuous." },
+  { q:"They ______ (go) to the cinema yesterday evening.", a:["went"], hu:"Tegnap este moziba mentünk.", explain:"Past Simple." },
+  { q:"He ______ (work) here for five years by next month.", a:["will have been working"], hu:"Jövő hónapra már öt éve fog itt dolgozni.", explain:"Future Perfect Continuous — duration up to a future point." },
+  { q:"I ______ (read) that book last year.", a:["read"], hu:"Tavaly olvastam azt a könyvet.", explain:"Past Simple (read = pronounced 'red')." },
+  { q:"We ______ (go) to the supermarket every Saturday.", a:["go"], hu:"Minden szombaton elmegyünk a boltba.", explain:"Present Simple — routine." },
+  { q:"She ______ (not / like) coffee.", a:["does not like","doesn't like"], hu:"Nem szereti a kávét.", explain:"Present Simple negation." },
+  { q:"______ you ever ______ (try) sushi?", a:["have you ever tried","have you ever tried sushi"], hu:"Próbáltál már sushit?", explain:"Present Perfect question (experience)." },
+  { q:"By 2025 they ______ (finish) the project.", a:["will have finished"], hu:"2025-re be fogják fejezni a projektet.", explain:"Future Perfect." },
+
+  { q:"I ______ (be) tired yesterday.", a:["was"], hu:"Tegnap fáradt voltam.", explain:"Past Simple (to be)." },
+  { q:"She ______ (study) for two hours.", a:["has been studying","have been studying"], hu:"Két órája tanul.", explain:"Present Perfect Continuous — duration." },
+  { q:"What ______ you ______ (do) tomorrow evening?", a:["will you be doing","will you be doing tomorrow evening"], hu:"Mit fogsz csinálni holnap este?", explain:"Future Continuous — future action in progress." },
+  { q:"If it ______ (rain) tomorrow, we will stay home.", a:["rains"], hu:"Ha holnap esik, otthon maradunk.", explain:"Conditional 1: present simple + will." },
+  { q:"He ______ (already / leave) when I arrived.", a:["had already left","had left already"], hu:"Már elment, amikor megérkeztem.", explain:"Past Perfect with already." },
+  { q:"I ______ (just / finish) my homework.", a:["have just finished"], hu:"Épp most fejeztem be a házit.", explain:"Present Perfect with just." },
+  { q:"We ______ (plan) to visit Paris next summer.", a:["are planning","are planning to visit"], hu:"Jövő nyáron Párizsba tervezünk menni.", explain:"Present Continuous for arrangements." },
+  { q:"She ______ (be) at school now.", a:["is"], hu:"Most az iskolában van.", explain:"Present Simple for temporary state with be." },
+  { q:"They ______ (not / finish) the work yet.", a:["have not finished","haven't finished"], hu:"Még nem fejezték be a munkát.", explain:"Present Perfect negative." },
+  { q:"By the time he comes, I ______ (cook) dinner.", a:["will have cooked","will have cooked"], hu:"Mire megérkezik, megfőzöm a vacsorát.", explain:"Future Perfect." },
+
+  { q:"I ______ (see) that film three times.", a:["have seen"], hu:"Már háromszor láttam azt a filmet.", explain:"Present Perfect — experiences." },
+  { q:"He ______ (teach) for 30 years by the time he retires.", a:["will have been teaching"], hu:"Amikor nyugdíjba megy, már 30 éve fog tanítani.", explain:"Future Perfect Continuous." },
+  { q:"They ______ (play) football when it started to rain.", a:["were playing"], hu:"Téten játszottak, amikor elkezdett esni az eső.", explain:"Past Continuous + Past Simple." },
+  { q:"Do you think she ______ (pass) the exam?", a:["will pass"], hu:"Szerinted sikerül neki a vizsga?", explain:"Future Simple — prediction." },
+  { q:"How long ______ you ______ (live) here?", a:["have you lived","have you been living"], hu:"Mióta élsz itt?", explain:"Present Perfect / Present Perfect Continuous for duration." },
+  { q:"I ______ (not / understand) this problem yesterday.", a:["did not understand","didn't understand"], hu:"Tegnap nem értettem ezt a problémát.", explain:"Past Simple negative." },
+  { q:"What time ______ the train ______ (leave)?", a:["does the train leave","does the train leave"], hu:"Mikor indul a vonat?", explain:"Present Simple timetable." },
+  { q:"She ______ (wear) a red dress last night.", a:["wore"], hu:"Tegnap este piros ruhát viselt.", explain:"Past Simple." },
+  { q:"I ______ (finish) the report by 5 pm.", a:["will have finished"], hu:"5 órára be fogom fejezni a jelentést.", explain:"Future Perfect." },
+  { q:"They ______ (be) married since 2010.", a:["have been"], hu:"2010 óta házasok.", explain:"Present Perfect (state since)." },
+
+  { q:"We ______ (move) to a new house next month.", a:["are moving","we are moving"], hu:"Jövő hónapban költözünk új házba.", explain:"Present Continuous for planned future." },
+  { q:"He ______ (not / watch) TV now.", a:["is not watching","isn't watching"], hu:"Most nem nézi a tévét.", explain:"Present Continuous negative." },
+  { q:"I ______ (lose) my keys yesterday.", a:["lost"], hu:"Tegnap elvesztettem a kulcsaimat.", explain:"Past Simple." },
+  { q:"They ______ (already / eat) when we arrived.", a:["had already eaten","had eaten already"], hu:"Már ettek, amikor megérkeztünk.", explain:"Past Perfect." },
+  { q:"She ______ (study) for the test all week.", a:["has been studying","have been studying"], hu:"Egész héten a vizsgára készült.", explain:"Present Perfect Continuous." },
+  { q:"What ______ you ______ (do) this weekend?", a:["are you going to do","what are you going to do","will you do"], hu:"Mit fogsz csinálni a hétvégén?", explain:"Be going to / Future plans." },
+  { q:"I ______ (not / hear) from him yet.", a:["have not heard","haven't heard"], hu:"Még nem hallottam felőle.", explain:"Present Perfect negative." },
+  { q:"He ______ (buy) a new car last month.", a:["bought"], hu:"Tegnap új autót vett.", explain:"Past Simple." },
+  { q:"By the time you arrive, we ______ (leave).", a:["will have left"], hu:"Mire megérkezel, már elmegyünk.", explain:"Future Perfect." },
+  { q:"How long ______ you ______ (wait) for the bus?", a:["have you been waiting"], hu:"Mióta vársz a buszra?", explain:"Present Perfect Continuous." },
+
+  { q:"She ______ (be) usually at home in the evenings.", a:["is"], hu:"Általában esténként otthon van.", explain:"Present Simple." },
+  { q:"They ______ (not / be) at the party last night.", a:["were not","weren't"], hu:"Tegnap este nem voltak a buliban.", explain:"Past Simple negative." },
+  { q:"I ______ (write) three emails this morning.", a:["have written"], hu:"Reggel három e-mailt írtam.", explain:"Present Perfect (finished actions with present relevance)." },
+  { q:"We ______ (watch) TV when the phone rang.", a:["were watching"], hu:"Tévéztünk, amikor csörgött a telefon.", explain:"Past Continuous + Past Simple." },
+  { q:"By next year I ______ (save) enough money.", a:["will have saved"], hu:"Jövőre elegendő pénzt fogok megtakarítani.", explain:"Future Perfect." },
+  { q:"He ______ (sleep) by midnight.", a:["will be sleeping"], hu:"Éjfélkor alszik majd.", explain:"Future Continuous." },
+  { q:"Why ______ she ______ (cry)?", a:["is she crying","why is she crying"], hu:"Miért sír?", explain:"Present Continuous question." },
+  { q:"I ______ (never / see) snow before I moved north.", a:["had never seen"], hu:"Mielőtt északra költöztem, soha nem láttam havat.", explain:"Past Perfect (experience before another past event)." },
+  { q:"They ______ (play) football every Saturday when they were kids.", a:["played"], hu:"Gyerekkorukban minden szombaton fociztak.", explain:"Past Simple habitual action." },
+  { q:"She ______ (finish) her work by 6 o'clock.", a:["will have finished"], hu:"6-ra be fogja fejezni a munkáját.", explain:"Future Perfect." },
+
+  { q:"I ______ (be) late if I don't hurry.", a:["will be"], hu:"Késni fogok, ha nem sietek.", explain:"Future Simple — prediction." },
+  { q:"We ______ (go) to the mountains last summer.", a:["went"], hu:"Tavaly nyáron a hegyekbe mentünk.", explain:"Past Simple." },
+  { q:"She ______ (work) here since April.", a:["has been working"], hu:"Április óta itt dolgozik.", explain:"Present Perfect Continuous." },
+  { q:"What time ______ you ______ (get) up in the morning?", a:["do you get","do you get up"], hu:"Mikor szoktál reggel felkelni?", explain:"Present Simple habit question." },
+  { q:"They ______ (visit) us by the time we arrive.", a:["will have visited"], hu:"Mire megérkezünk, már meglátogatnak minket.", explain:"Future Perfect." },
+  { q:"He ______ (not / finish) the book yet.", a:["has not finished","hasn't finished"], hu:"Még nem fejezte be a könyvet.", explain:"Present Perfect negative." },
+  { q:"I ______ (try) to call you when I had time.", a:["tried"], hu:"Megpróbáltalak hívni, amikor volt időm.", explain:"Past Simple." },
+  { q:"We ______ (plan) to start at 10 o'clock.", a:["are planning","we are planning"], hu:"10-kor tervezzük a kezdést.", explain:"Present Continuous for arrangement." },
+  { q:"She ______ (be) embarrassed when she realized the mistake.", a:["was"], hu:"Zavarban volt, amikor észrevette a hibát.", explain:"Past Simple (emotion/state)." },
+  { q:"By the end of this week I ______ (work) on the project for two months.", a:["will have been working"], hu:"A hét végére két hónapja fogok dolgozni a projekten.", explain:"Future Perfect Continuous." },
+
+  { q:"I ______ (not / know) his name until you told me.", a:["did not know","didn't know"], hu:"Nem tudtam a nevét, amíg meg nem mondtad.", explain:"Past Simple (not know until)." },
+  { q:"They ______ (arrive) already.", a:["have arrived","have already arrived"], hu:"Már megérkeztek.", explain:"Present Perfect." },
+  { q:"What ______ he ______ (do) at 3 pm tomorrow?", a:["will he be doing","what will he be doing"], hu:"Mit fog csinálni holnap 3-kor?", explain:"Future Continuous." },
+  { q:"She usually ______ (drink) tea in the afternoon.", a:["drinks"], hu:"Általában teát iszik délután.", explain:"Present Simple." },
+  { q:"We ______ (not / be) friends before school.", a:["were not","weren't"], hu:"Nem voltunk barátok az iskola előtt.", explain:"Past Simple negative." },
+  { q:"I ______ (finish) the exam by 11.", a:["will have finished"], hu:"11-re be fogom fejezni a vizsgát.", explain:"Future Perfect." },
+  { q:"He ______ (talk) on the phone when I saw him.", a:["was talking"], hu:"Telefonált, amikor megláttam.", explain:"Past Continuous." },
+  { q:"They ______ (live) in Spain for five years before moving.", a:["had lived"], hu:"Öt évig éltek Spanyolországban, mielőtt elköltöztek.", explain:"Past Perfect." },
+  { q:"I ______ (be) very busy this week.", a:["am"], hu:"Nagyon elfoglalt vagyok ezen a héten.", explain:"Present Simple (state), or Present Continuous possible." },
+  { q:"By tomorrow I ______ (read) ten chapters.", a:["will have read"], hu:"Holnapra tíz fejezetet el fogok olvasni.", explain:"Future Perfect." },
+
+  { q:"She ______ (prepare) dinner when the guests arrived.", a:["was preparing"], hu:"Vacsorát készített, amikor a vendégek megérkeztek.", explain:"Past Continuous." },
+  { q:"What ______ you ______ (want) to be when you were a child?", a:["did you want"], hu:"Gyerekként mivé szerettél volna válni?", explain:"Past Simple question." },
+  { q:"They ______ (be) at home now.", a:["are"], hu:"Most otthon vannak.", explain:"Present Simple." },
+  { q:"I ______ (never / see) him before yesterday.", a:["had never seen"], hu:"Még soha nem láttam őt tegnap előtt.", explain:"Past Perfect." },
+  { q:"He ______ (practice) the piano for two hours by lunchtime.", a:["will have been practicing"], hu:"Ebédig két órája gyakorolja majd a zongorát.", explain:"Future Perfect Continuous." },
+  { q:"She ______ (go) shopping every Friday.", a:["goes"], hu:"Minden pénteken vásárol.", explain:"Present Simple." },
+  { q:"I ______ (not / remember) his phone number.", a:["do not remember","don't remember"], hu:"Nem emlékszem a telefonszámára.", explain:"Present Simple negative." },
+  { q:"They ______ (sell) their house last year.", a:["sold"], hu:"Tavaly eladták a házukat.", explain:"Past Simple." },
+  { q:"By the time you wake up I ______ (leave).", a:["will have left"], hu:"Mire felébredsz, el fogok menni.", explain:"Future Perfect." },
+  { q:"She ______ (be) happy to see you tomorrow.", a:["will be"], hu:"Örülni fog, hogy holnap lát téged.", explain:"Future Simple." },
+
+  { q:"Why ______ he ______ (laugh) at the joke?", a:["was he laughing","why was he laughing"], hu:"Miért nevetett a poénon?", explain:"Past Continuous question." },
+  { q:"I ______ (meet) him three times already.", a:["have met","have already met"], hu:"Már háromszor találkoztam vele.", explain:"Present Perfect." },
+  { q:"We ______ (have) dinner when she arrived.", a:["were having"], hu:"Vacsoráztunk, amikor megérkezett.", explain:"Past Continuous." },
+  { q:"By the time we get there, they ______ (start).", a:["will have started"], hu:"Mire odaérünk, már elkezdődnek.", explain:"Future Perfect." },
+  { q:"She ______ (be) a teacher for ten years.", a:["has been"], hu:"Tíz éve tanár.", explain:"Present Perfect (state duration)." },
+  { q:"I ______ (not / see) you at school yesterday.", a:["did not see","didn't see"], hu:"Tegnap nem láttalak az iskolában.", explain:"Past Simple negative." },
+  { q:"He ______ (fix) the car tomorrow morning.", a:["is going to fix","is going to fix the car"], hu:"Holnap reggel megjavítja az autót.", explain:"Be going to for plans." },
+  { q:"They ______ (work) on the report most of the week.", a:["have been working"], hu:"A hét nagy részében a jelentésen dolgoztak.", explain:"Present Perfect Continuous." },
+  { q:"I ______ (feel) better after a rest.", a:["will feel"], hu:"Pihenés után jobban fogom érezni magam.", explain:"Future Simple (prediction)." },
+  { q:"She ______ (tell) me before she leaves.", a:["will tell"], hu:"Megmondja nekem, mielőtt elmegy.", explain:"Future Simple (future action before another)." },
+
+  { q:"Do you think it ______ (be) cold tomorrow?", a:["will be"], hu:"Szerinted hideg lesz holnap?", explain:"Future Simple prediction." },
+  { q:"We ______ (not / finish) the test yet.", a:["have not finished","haven't finished"], hu:"Még nem fejeztük be a tesztet.", explain:"Present Perfect negative." },
+  { q:"They ______ (run) in the park every morning.", a:["run"], hu:"Minden reggel futnak a parkban.", explain:"Present Simple." },
+  { q:"By the time the train arrives we ______ (wait) for two hours.", a:["will have been waiting"], hu:"Amire a vonat megérkezik, két órája várni fogunk.", explain:"Future Perfect Continuous." },
+  { q:"She ______ (have) lunch at 12 every day.", a:["has"], hu:"Minden nap 12-kor ebédel.", explain:"Present Simple." },
+  { q:"I ______ (see) him when I walked into the room.", a:["saw"], hu:"Láttam őt, amikor beléptem a szobába.", explain:"Past Simple." },
+  { q:"He ______ (study) medicine since 2017.", a:["has been studying","has studied"], hu:"2017 óta orvostudományt tanul.", explain:"Present Perfect Continuous/Present Perfect for duration." },
+  { q:"What time ______ the film ______ (start)?", a:["does the film start","what time does the film start"], hu:"Mikor kezdődik a film?", explain:"Present Simple timetable." },
+  { q:"They ______ (not / call) us yet.", a:["have not called","haven't called"], hu:"Még nem hívtak minket.", explain:"Present Perfect negative." },
+  { q:"I ______ (finish) my work before lunch.", a:["will have finished"], hu:"Meg fogom csinálni a munkám ebéd előtt.", explain:"Future Perfect." }
+];
+
+/* ====== logika ====== */
+const pageSize = 1; // we render one new card per "Következő"
+let pool = [];
+let shown = [];
+let answers = {}; // idx -> {user, ok, correct, q, hu, explain}
+let timerSeconds = 60 * 60; // 60 minutes
+let timerInterval = null;
+
+function normalize(s){ return (s||'').toString().trim().toLowerCase().replace(/\s+/g,' '); }
+
+function shuffleArray(a){
+  const b = a.slice();
+  for(let i=b.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [b[i],b[j]]=[b[j],b[i]];
+  }
+  return b;
+}
+
+function preparePool(){
+  pool = BANK.map((t,i)=> ({...t, id:i}));
+  if(document.getElementById('shuffle').checked) pool = shuffleArray(pool);
+  shown = [];
+  answers = {};
+  document.getElementById('quizArea').innerHTML = '';
+  document.getElementById('summary').style.display = 'none';
+  document.getElementById('totalCount').textContent = pool.length;
+  updateSummaryCounts();
+  resetTimer();
+}
+
+function renderNext(){
+  if(pool.length===0) preparePool();
+  const idx = shown.length;
+  if(idx >= pool.length){
+    alert('Nincs több kérdés. / No more questions.');
+    return;
+  }
+  const item = pool[idx];
+  const id = 'q'+idx;
+  const wrapper = document.createElement('div');
+  wrapper.className = 'qcard';
+  wrapper.id = 'card-'+idx;
+  wrapper.innerHTML = `
+    <div><strong>${idx+1}.</strong> ${item.q} <span style="float:right;color:var(--muted)">${item.tense||''}</span></div>
+    <div class="translation">${item.hu}</div>
+    <div style="margin-top:8px"><input type="text" id="${id}" placeholder="Írd be a választ... / Type your answer..."></div>
+    <div class="buttons">
+      <button type="button" onclick="checkSingle(${idx})">Ellenőrzés / Check</button>
+      <button type="button" onclick="renderNext()">Következő / Next</button>
+      <button type="button" onclick="finishTest()">Befejezem / Finish</button>
+    </div>
+    <div id="exp-${idx}" class="explain"></div>
+  `;
+  document.getElementById('quizArea').appendChild(wrapper);
+  shown.push(idx);
+  updateSummaryCounts();
+  // autofocus new input
+  setTimeout(()=>{ const el = document.getElementById(id); if(el) el.focus(); },50);
+}
+
+function checkSingle(idx){
+  const input = document.getElementById('q'+idx);
+  const raw = (input.value||'').trim();
+  const user = normalize(raw);
+  const item = pool[idx];
+  const corrects = (Array.isArray(item.a)? item.a : [item.a]).map(normalize);
+  const expDiv = document.getElementById('exp-'+idx);
+  const card = document.getElementById('card-'+idx);
+  const ok = corrects.includes(user);
+  answers[idx] = { user: raw, ok, correct: (Array.isArray(item.a)? item.a[0] : item.a), q: item.q, hu: item.hu, explain: item.explain };
+  if(raw === ''){
+    expDiv.style.display='block';
+    expDiv.innerHTML = `<strong style="color:#e09000">Üres válasz — kérlek töltsd ki. / Empty — please answer.</strong>`;
+    card.classList.remove('correct','wrong');
+    return;
+  }
+  if(ok){
+    card.classList.remove('wrong'); card.classList.add('correct');
+    expDiv.style.display='block';
+    expDiv.innerHTML = `<strong style="color:green">✅ Helyes / Correct.</strong> <div style="margin-top:6px">${item.explain}</div>`;
+  } else {
+    card.classList.remove('correct'); card.classList.add('wrong');
+    expDiv.style.display='block';
+    expDiv.innerHTML = `<strong style="color:red">❌ Helytelen / Incorrect.</strong> Helyes válasz: <b>${answers[idx].correct}</b><div style="margin-top:6px">${item.explain}</div>`;
+  }
+  updateSummaryCounts();
+}
+
+function updateSummaryCounts(){
+  const totalShown = shown.length;
+  const answeredCount = Object.keys(answers).length;
+  const correctCount = Object.values(answers).filter(x=>x.ok).length;
+  document.getElementById('totalShown').textContent = totalShown;
+  document.getElementById('answeredCount').textContent = answeredCount;
+  document.getElementById('correctCount').textContent = correctCount;
+  const pct = answeredCount===0?0:Math.round((correctCount/answeredCount)*100);
+  document.getElementById('percent').textContent = pct+'%';
+  document.getElementById('totalCount').textContent = pool.length;
+}
+
+function finishTest(){
+  // record filled answers for any shown but not yet saved
+  shown.forEach(idx=>{
+    if(!answers[idx]){
+      const raw = (document.getElementById('q'+idx)?.value||'').trim();
+      const user = normalize(raw);
+      const item = pool[idx];
+      const corrects = (Array.isArray(item.a)? item.a : [item.a]).map(normalize);
+      const ok = corrects.includes(user);
+      answers[idx] = { user: raw, ok, correct: (Array.isArray(item.a)? item.a[0] : item.a), q: item.q, hu: item.hu, explain: item.explain };
+      const expDiv = document.getElementById('exp-'+idx);
+      const card = document.getElementById('card-'+idx);
+      if(raw===''){
+        expDiv.style.display='block';
+        expDiv.innerHTML = `<strong style="color:#e09000">Üres válasz — nem számított bele. / Empty — not counted.</strong>`;
+      } else if(ok){
+        card.classList.add('correct');
+        expDiv.style.display='block';
+        expDiv.innerHTML = `<strong style="color:green">✅ Helyes / Correct.</strong> <div style="margin-top:6px">${item.explain}</div>`;
+      } else {
+        card.classList.add('wrong');
+        expDiv.style.display='block';
+        expDiv.innerHTML = `<strong style="color:red">❌ Helytelen / Incorrect.</strong> Helyes válasz: <b>${answers[idx].correct}</b><div style="margin-top:6px">${item.explain}</div>`;
+      }
+    }
+  });
+
+  const answeredCount = Object.keys(answers).length;
+  const correctCount = Object.values(answers).filter(x=>x.ok).length;
+  const pct = answeredCount===0?0:Math.round((correctCount/answeredCount)*100);
+  document.getElementById('answeredCount').textContent = answeredCount;
+  document.getElementById('correctCount').textContent = correctCount;
+  document.getElementById('percent').textContent = pct+'%';
+
+  const wrongs = Object.values(answers).filter(x=>!x.ok);
+  const wrongBlock = document.getElementById('wrongBlock');
+  wrongBlock.innerHTML = '';
+  if(wrongs.length){
+    wrongBlock.innerHTML = '<h4>Hibás / Incorrect answers (javítva / corrected):</h4><div class="wrongList">';
+    wrongs.forEach((w,i)=>{
+      wrongBlock.innerHTML += `<p><strong>${i+1}.</strong> ${w.q}<br><em>${w.hu}</em><br><strong>Te / You:</strong> ${w.user || '(üres / empty)'}<br><strong>Helyes / Correct:</strong> ${w.correct}<br><small style="display:block;margin-top:6px">${w.explain}</small></p>`;
+    });
+    wrongBlock.innerHTML += '</div>';
+  } else {
+    wrongBlock.innerHTML = '<p>Gratulálok! Minden megadott válasz helyes volt. / All answers correct.</p>';
+  }
+
+  document.getElementById('summary').style.display = 'block';
+  // disable creation of more questions
+  document.querySelectorAll('button').forEach(b=>{
+    if(b.textContent.trim().toLowerCase().includes('következő') || b.textContent.trim().toLowerCase().includes('next')) b.disabled = true;
+  });
+  stopTimer();
+}
+
+/* ====== Timer (60 minutes) ====== */
+function resetTimer(){
+  stopTimer();
+  timerSeconds = 60 * 60;
+  document.getElementById('timer').textContent = formatTime(timerSeconds);
+  timerInterval = setInterval(()=>{
+    timerSeconds--;
+    document.getElementById('timer').textContent = formatTime(timerSeconds);
+    if(timerSeconds <= 0){
+      clearInterval(timerInterval);
+      alert('Az idő lejárt — a teszt automatikusan befejeződik. / Time is up — finishing test.');
+      finishTest();
+    }
+  },1000);
+}
+
+function stopTimer(){ if(timerInterval) { clearInterval(timerInterval); timerInterval=null; } }
+function formatTime(s){ const m = Math.floor(s/60); const sec = s % 60; return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0'); }
+
+function restart(){
+  document.querySelectorAll('button').forEach(b=>b.disabled=false);
+  preparePool();
+  renderNext();
+}
+
+document.getElementById('shuffle').addEventListener('change', ()=>{
+  preparePool();
+  renderNext();
+});
+document.getElementById('restartBtn').addEventListener('click', restart);
+
+/* ====== Init ====== */
+preparePool();
+renderNext();
+
+</script>
+</body>
+</html>
