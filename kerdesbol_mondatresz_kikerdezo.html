@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angol szóbeli gyakorló - "
+Kérdésből mondatrész"</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+    transition: 0.3s;
+    background: #ffffff;
+    color: #111111;
+}
+
+body.dark {
+    background: #222;
+    color: #eee;
+}
+
+.panel {
+    padding: 10px;
+    background: #f0f0f0;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+body.dark .panel {
+    background: #333;
+}
+
+.choice {
+    display: block;
+    width: 100%;
+    margin: 8px 0;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    font-size: 16px;
+    background: #e9e9e9;
+    color: inherit;
+    transition: 0.2s;
+}
+
+.choice:hover:enabled {
+    filter: brightness(0.96);
+}
+
+body.dark .choice {
+    background: #444;
+    color: #eee;
+}
+
+.choice:disabled {
+    cursor: not-allowed;
+    opacity: 0.95;
+}
+
+.correct {
+    background: #4CAF50 !important;
+    color: white !important;
+}
+
+.wrong {
+    background: #f44336 !important;
+    color: white !important;
+}
+
+#timer {
+    font-size: 24px;
+    font-weight: bold;
+    color: #d32f2f;
+}
+
+#question {
+    font-size: 22px;
+    margin: 20px 0 10px;
+    min-height: 56px;
+}
+
+#result {
+    margin: 12px 0;
+    font-weight: bold;
+    min-height: 24px;
+}
+
+.controls-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+button {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+button:hover {
+    filter: brightness(0.97);
+}
+
+body.dark button {
+    background: #444;
+    color: #eee;
+}
+</style>
+</head>
+<body>
+<h1>Angol szóbeli gyakorló - "Kérdésből mondatrész"</h1>
+
+<div class="panel">
+    <div class="controls-row">
+        <label><input type="radio" name="mode" value="en-to-hu" checked> Angol -> Magyar</label>
+        <label><input type="radio" name="mode" value="hu-to-en"> Magyar -> Angol</label>
+        <button type="button" onclick="toggleDark()">🌙 Sötét mód</button>
+
+        <label for="rate">Sebesség:</label>
+        <select id="rate">
+            <option value="0.7">Lassú</option>
+            <option value="0.85" selected>Normál</option>
+            <option value="1">Gyors</option>
+        </select>
+    </div>
+</div>
+
+<div id="question"></div>
+<button type="button" onclick="repeatQuestion()">🔊 Ismétlés</button>
+
+<div id="answers"></div>
+<div id="result"></div>
+
+<p>⏳ Hátralévő idő: <span id="timer">18</span> mp</p>
+<p>Kérdés: <span id="current">0</span>/<span id="total">0</span></p>
+<p>Pont: <span id="score">0</span></p>
+<p>Teljesítmény: <span id="percent">0</span>%</p>
+
+<div class="controls-row">
+    <button type="button" onclick="stopQuiz()">⛔ Teszt leállítása</button>
+    <button id="wrongOnlyBtn" style="display:none" type="button" onclick="retryWrong()">Csak hibás kérdések újra</button>
+    <button type="button" onclick="resetQuiz()">🔄 Újrakezdés</button>
+</div>
+
+<script>
+const originalQuestions = [
+{q:"Where is the book? - I'd like to ask where the book is.",a:"Hol van a könyv? - Szeretném megkérdezni, hol van a könyv.",w:["Hol a könyv? - Megkérdezhetem, hol van a könyv?","Merre van a könyv? - Tudni szeretném, hol a könyv."]},
+{q:"Where are my keys? - I can't remember where my keys are.",a:"Hol vannak a kulcsaim? - Nem emlékszem, hol vannak a kulcsaim.",w:["Merre vannak a kulcsaim? - Nem tudom, hol vannak a kulcsaim.","Hol a kulcsom? - Nem emlékszem, hová tettem."]},
+{q:"What time does the shop close? - Do you know what time the shop closes?",a:"Hánykor zár a bolt? - Tudod, hánykor zár a bolt?",w:["Mikor zár az üzlet? - Meg tudod mondani, mikor zár a bolt?","Hány órakor van zárás? - Tudod, mikor zárnak?"]},
+{q:"How much does this cost? - Could you tell me how much this costs?",a:"Mennyibe kerül ez? - Meg tudod mondani, mennyibe kerül ez?",w:["Mi az ára? - Elmondanád, mennyibe kerül?","Mennyibe kerül ez a darab? - Tudnád, mennyi az ára?"]},
+{q:"Where do you live? - I'd like to know where you live.",a:"Hol laksz? - Szeretném tudni, hol laksz.",w:["Merre van az otthonod? - Megkérdezhetem, hol élsz?","Hol lakik? - Tudni szeretném a lakhelyed."]},
+{q:"What are you cooking? - I was wondering what you are cooking.",a:"Mit főzöl? - Kíváncsi voltam, mit főzöl.",w:["Mit készítesz a konyhában? - Épp azt akartam kérdezni, mit főzöl.","Mi készül? - Tudni akartam, mit főzöl."]},
+{q:"When will you be home? - Can you tell me when you will be home?",a:"Mikor leszel otthon? - Meg tudod mondani, mikor leszel otthon?",w:["Mikor jössz haza? - Tudod, mikor érsz haza?","Mikor érkezel haza? - Megmondanád, mikor leszel otthon?"]},
+{q:"Why did she leave early? - Do you know why she left early?",a:"Miért ment el korán? - Tudod, miért ment el korán?",w:["Miért indult el hamarabb? - Tudod, miért ment el korán?","Miért ment el hamar? - Megkérdezhetem, miért ment el korán?"]},
+{q:"Where did you buy your jacket? - I'd like to know where you bought your jacket.",a:"Hol vetted a kabátodat? - Szeretném tudni, hol vetted a kabátodat.",w:["Hol szerezted a dzsekid? - Megkérdezhetem, hol vetted a kabátod?","Merre vetted a kabátot? - Tudni szeretném, hol vetted."]},
+{q:"How long have you lived here? - May I ask how long have you lived here?",a:"Mióta laksz itt? - Megkérdezhetem, mióta laksz itt?",w:["Mennyi ideje élsz itt? - Tudhatnám, mióta vagy itt?","Mióta vagy itt lakó? - Megkérdezhetem, mióta laksz ezen a helyen?"]},
+{q:"Do you like this? - I'd like to know if you like this.",a:"Tetszik ez neked? - Kíváncsi vagyok, hogy tetszik-e ez neked.",w:["Elnyerte a tetszésed? - Tudni szeretném, tetszik-e neked.","Szereted ezt? - Megkérdezhetem, hogy tetszik-e?"]},
+{q:"Is this seat free? - Could you tell me if this seat is free?",a:"Szabad ez a hely? - Meg tudnád mondani, szabad-e ez a hely?",w:["Foglalt ez a szék? - Megkérdezhetem, hogy szabad-e?","Szabad itt ülni? - Tudod, hogy szabad-e ez a hely?"]},
+{q:"Does this bus go to the airport? - Do you know if this bus goes to the airport?",a:"Ez a busz megy a repülőtérre? - Tudod, hogy ez a busz megy-e a repülőtérre?",w:["Elmegy ez a busz a reptérre? - Tudod, hogy odamegy-e?","Ez a járat a reptér felé tart? - Megkérdezhetem, hogy oda tart-e?"]},
+{q:"Can I pay by card? - I'd like to know if I can pay by card.",a:"Fizethetek kártyával? - Szeretném tudni, fizethetek-e kártyával.",w:["Lehet kártyával fizetni? - Tudni szeretném, hogy fizethetek-e így.","Bankkártyát elfogadnak? - Megkérdezhetem, hogy fizethetek-e kártyával?"]},
+{q:"Are you coming with us? - Let me know if you are coming with us.",a:"Jössz velünk? - Jezd, hogy jössz-e velünk.",w:["Csatlakozol hozzánk? - Tudasd velem, ha velünk tartasz.","Velünk tartasz? - Jelezd, hogy jössz-e velünk."]},
+{q:"Did you get my message? - I was wondering if you got my message.",a:"Megkaptad az üzenetemet? - Kíváncsi voltam, megkaptad-e az üzenetemet.",w:["Megjött a levelem? - Azt akartam tudni, megkaptad-e az üzenetem.","Célba ért az üzenetem? - Kíváncsi voltam, megkaptad-e."]},
+{q:"Have you booked a table? - Could you tell me if you have booked a table?",a:"Foglaltál már asztalt? - Meg tudnád mondani, foglaltál-e már asztalt?",w:["Van már asztalfoglalásod? - Megkérdezhetem, hogy foglaltál-e asztalt?","Foglaltatok asztalt? - Tudnál adni infót arról, hogy foglaltatok-e?"]},
+{q:"Is breakfast included? - I'd like to check whether breakfast is included.",a:"Benne van a reggeli az árban? - Szeretném ellenőrizni, benne van-e a reggeli az árban.",w:["A reggeli a csomag része? - Megnézném, hogy benne van-e az árban.","Tartalmazza az ár a reggelit? - Szeretném tudni, hogy benne van-e."]},
+{q:"Will you need a lift? - Let me know whether you will need a lift.",a:"Szükséged lesz fuvarra? - Jelezd, hogy szükséged lesz-e fuvarra.",w:["Elvigyelek kocsival? - Tudasd velem, kell-e fuvar.","Kell majd fuvar? - Jelezd, ha szükséged van rá."]},
+{q:"What should I bring? - Could you tell me what I should bring?",a:"Mit hozzak? - Meg tudnád mondani, mit hozzak?",w:["Mit kellene hoznom? - Megmondanád, mit vigyek magammal?","Milyen holmit hozzak? - Tudnál segíteni abban, mit hozzak?"]}
+];
+
+let questions = [];
+let wrongQuestions = [];
+let wrongQuestionKeys = new Set();
+let index = 0;
+let score = 0;
+let lastText = "";
+let lastLang = "en-US";
+let timer = null;
+let timeLeft = 18;
+let quizEnded = false;
+let waitingNextQuestion = false;
+
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+function mode() {
+    return document.querySelector('input[name="mode"]:checked').value;
+}
+
+function getQuestionKey(question) {
+    return `${question.q}|||${question.a}`;
+}
+
+function addWrongQuestion(question) {
+    const key = getQuestionKey(question);
+    if (!wrongQuestionKeys.has(key)) {
+        wrongQuestionKeys.add(key);
+        wrongQuestions.push(question);
+    }
+}
+
+function safeCancelSpeech() {
+    if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+    }
+}
+
+function speak(text, lang) {
+    if (!("speechSynthesis" in window)) return;
+
+    safeCancelSpeech();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang;
+    utterance.rate = parseFloat(document.getElementById("rate").value) || 0.85;
+
+    window.speechSynthesis.speak(utterance);
+    lastText = text;
+    lastLang = lang;
+}
+
+function repeatQuestion() {
+    if (!quizEnded && lastText) {
+        speak(lastText, lastLang);
+    }
+}
+
+function toggleDark() {
+    document.body.classList.toggle("dark");
+}
+
+function updateStats() {
+    document.getElementById("score").textContent = score;
+    document.getElementById("current").textContent = Math.min(index + 1, questions.length);
+    document.getElementById("total").textContent = questions.length;
+
+    const answered = index;
+    const pct = answered > 0 ? Math.round((score / answered) * 100) : 0;
+    document.getElementById("percent").textContent = pct;
+}
+
+function resetQuiz() {
+    clearInterval(timer);
+    safeCancelSpeech();
+
+    questions = [...originalQuestions];
+    shuffle(questions);
+
+    wrongQuestions = [];
+    wrongQuestionKeys = new Set();
+    index = 0;
+    score = 0;
+    timeLeft = 18;
+    quizEnded = false;
+    waitingNextQuestion = false;
+
+    document.getElementById("timer").textContent = timeLeft;
+    document.getElementById("wrongOnlyBtn").style.display = "none";
+    document.getElementById("result").textContent = "";
+
+    updateStats();
+    showQuestion();
+}
+
+function disableChoices() {
+    document.querySelectorAll(".choice").forEach(btn => {
+        btn.disabled = true;
+    });
+}
+
+function startTimer(correct) {
+    clearInterval(timer);
+    timeLeft = 18;
+    document.getElementById("timer").textContent = timeLeft;
+
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+
+            if (quizEnded || waitingNextQuestion) return;
+
+            disableChoices();
+            addWrongQuestion(questions[index]);
+
+            document.getElementById("result").textContent =
+                "⏰ Lejárt az idő! Helyes válasz: " + correct;
+
+            const lang = mode() === "en-to-hu" ? "hu-HU" : "en-US";
+            speak(correct, lang);
+
+            waitingNextQuestion = true;
+            index++;
+            updateStats();
+
+            setTimeout(() => {
+                waitingNextQuestion = false;
+                if (!quizEnded) showQuestion();
+            }, 4000);
+        }
+    }, 1000);
+}
+
+function getWrongOptionsForHuToEn(correct) {
+    const pool = originalQuestions
+        .map(item => item.q)
+        .filter(item => item !== correct);
+
+    shuffle(pool);
+    return pool.slice(0, 2);
+}
+
+function showQuestion() {
+    if (quizEnded) return;
+
+    if (index >= questions.length) {
+        clearInterval(timer);
+        quizEnded = true;
+
+        const pct = questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
+
+        document.getElementById("question").innerHTML = "<h2>Vége!</h2>";
+        document.getElementById("answers").innerHTML = "";
+        document.getElementById("result").textContent =
+            "Eredmény: " + score + "/" + questions.length + " (" + pct + "%)";
+        document.getElementById("percent").textContent = pct;
+        document.getElementById("timer").textContent = "0";
+
+        localStorage.setItem("lastResult", String(pct));
+
+        if (wrongQuestions.length > 0) {
+            document.getElementById("wrongOnlyBtn").style.display = "inline-block";
+        }
+        return;
+    }
+
+    const q = questions[index];
+    let questionText;
+    let correct;
+    let wrongs;
+    let lang;
+
+    if (mode() === "en-to-hu") {
+        questionText = q.q;
+        correct = q.a;
+        wrongs = [...q.w];
+        lang = "en-US";
+    } else {
+        questionText = q.a;
+        correct = q.q;
+        wrongs = getWrongOptionsForHuToEn(correct);
+        lang = "hu-HU";
+    }
+
+    document.getElementById("question").textContent = questionText;
+    document.getElementById("result").textContent = "";
+
+    speak(questionText, lang);
+
+    const options = [correct, ...wrongs];
+    shuffle(options);
+
+    const answersDiv = document.getElementById("answers");
+    answersDiv.innerHTML = "";
+
+    options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.className = "choice";
+        btn.type = "button";
+        btn.textContent = option;
+        btn.addEventListener("click", () => checkAnswer(btn, option, correct));
+        answersDiv.appendChild(btn);
+    });
+
+    updateStats();
+    startTimer(correct);
+}
+
+function highlightCorrectAnswer(correct) {
+    document.querySelectorAll(".choice").forEach(button => {
+        if (button.textContent === correct) {
+            button.classList.add("correct");
+        }
+    });
+}
+
+function checkAnswer(btn, selected, correct) {
+    if (quizEnded || waitingNextQuestion) return;
+
+    clearInterval(timer);
+    disableChoices();
+
+    const lang = mode() === "en-to-hu" ? "hu-HU" : "en-US";
+
+    if (selected === correct) {
+        score++;
+        btn.classList.add("correct");
+        document.getElementById("result").textContent = "✓ Helyes!";
+    } else {
+        btn.classList.add("wrong");
+        highlightCorrectAnswer(correct);
+        addWrongQuestion(questions[index]);
+        document.getElementById("result").textContent = "✗ Hibás! Helyes válasz: " + correct;
+    }
+
+    speak(correct, lang);
+
+    waitingNextQuestion = true;
+    index++;
+    updateStats();
+
+    setTimeout(() => {
+        waitingNextQuestion = false;
+        if (!quizEnded) showQuestion();
+    }, 3000);
+}
+
+function stopQuiz() {
+    if (quizEnded) return;
+
+    if (!confirm("Biztosan befejezed a tesztet?")) return;
+
+    clearInterval(timer);
+    safeCancelSpeech();
+    quizEnded = true;
+    waitingNextQuestion = false;
+
+    disableChoices();
+
+    const answered = index;
+    const pct = answered > 0 ? Math.round((score / answered) * 100) : 0;
+
+    document.getElementById("question").innerHTML = "<h2>A teszt megszakítva.</h2>";
+    document.getElementById("answers").innerHTML = "";
+    document.getElementById("result").textContent =
+        "Eredmény: " + score + "/" + answered + " (" + pct + "%)";
+    document.getElementById("percent").textContent = pct;
+    document.getElementById("timer").textContent = "0";
+
+    if (wrongQuestions.length > 0) {
+        document.getElementById("wrongOnlyBtn").style.display = "inline-block";
+    }
+}
+
+function retryWrong() {
+    clearInterval(timer);
+    safeCancelSpeech();
+
+    if (wrongQuestions.length === 0) return;
+
+    questions = [...wrongQuestions];
+    shuffle(questions);
+
+    wrongQuestions = [];
+    wrongQuestionKeys = new Set();
+    index = 0;
+    score = 0;
+    timeLeft = 18;
+    quizEnded = false;
+    waitingNextQuestion = false;
+
+    document.getElementById("timer").textContent = timeLeft;
+    document.getElementById("wrongOnlyBtn").style.display = "none";
+    document.getElementById("result").textContent = "";
+
+    updateStats();
+    showQuestion();
+}
+
+document.querySelectorAll('input[name="mode"]').forEach(radio => {
+    radio.addEventListener("change", resetQuiz);
+});
+
+resetQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angol szóbeli gyakorló - "
+Mozgás és irány"</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+    transition: 0.3s;
+    background: #ffffff;
+    color: #111111;
+}
+
+body.dark {
+    background: #222;
+    color: #eee;
+}
+
+.panel {
+    padding: 10px;
+    background: #f0f0f0;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+body.dark .panel {
+    background: #333;
+}
+
+.choice {
+    display: block;
+    width: 100%;
+    margin: 8px 0;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    font-size: 16px;
+    background: #e9e9e9;
+    color: inherit;
+    transition: 0.2s;
+}
+
+.choice:hover:enabled {
+    filter: brightness(0.96);
+}
+
+body.dark .choice {
+    background: #444;
+    color: #eee;
+}
+
+.choice:disabled {
+    cursor: not-allowed;
+    opacity: 0.95;
+}
+
+.correct {
+    background: #4CAF50 !important;
+    color: white !important;
+}
+
+.wrong {
+    background: #f44336 !important;
+    color: white !important;
+}
+
+#timer {
+    font-size: 24px;
+    font-weight: bold;
+    color: #d32f2f;
+}
+
+#question {
+    font-size: 22px;
+    margin: 20px 0 10px;
+    min-height: 56px;
+}
+
+#result {
+    margin: 12px 0;
+    font-weight: bold;
+    min-height: 24px;
+}
+
+.controls-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+button {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+button:hover {
+    filter: brightness(0.97);
+}
+
+body.dark button {
+    background: #444;
+    color: #eee;
+}
+</style>
+</head>
+<body>
+<h1>Angol szóbeli gyakorló - "Mozgás és irány"</h1>
+
+<div class="panel">
+    <div class="controls-row">
+        <label><input type="radio" name="mode" value="en-to-hu" checked> Angol -> Magyar</label>
+        <label><input type="radio" name="mode" value="hu-to-en"> Magyar -> Angol</label>
+        <button type="button" onclick="toggleDark()">🌙 Sötét mód</button>
+
+        <label for="rate">Sebesség:</label>
+        <select id="rate">
+            <option value="0.7">Lassú</option>
+            <option value="0.85" selected>Normál</option>
+            <option value="1">Gyors</option>
+        </select>
+    </div>
+</div>
+
+<div id="question"></div>
+<button type="button" onclick="repeatQuestion()">🔊 Ismétlés</button>
+
+<div id="answers"></div>
+<div id="result"></div>
+
+<p>⏳ Hátralévő idő: <span id="timer">18</span> mp</p>
+<p>Kérdés: <span id="current">0</span>/<span id="total">0</span></p>
+<p>Pont: <span id="score">0</span></p>
+<p>Teljesítmény: <span id="percent">0</span>%</p>
+
+<div class="controls-row">
+    <button type="button" onclick="stopQuiz()">⛔ Teszt leállítása</button>
+    <button id="wrongOnlyBtn" style="display:none" type="button" onclick="retryWrong()">Csak hibás kérdések újra</button>
+    <button type="button" onclick="resetQuiz()">🔄 Újrakezdés</button>
+</div>
+
+<script>
+const originalQuestions = [
+{q:"The cat is going to the park right now.",a:"A macska pont most megy a parkba.",w:["A cica épp a park felé tart.","A macska most megy a parkhoz."]},
+{q:"The cat is going into the box right now.",a:"A macska pont most bemegy a dobozba.",w:["A cica épp most lép be a dobozba.","A macska most benne van a dobozban."]},
+{q:"The cat is jumping onto the table right now.",a:"A macska pont most felugrik az asztalra.",w:["A cica épp most ugrándozik az asztalon.","A macska most ugrik fel az asztalra."]},
+{q:"The cat is coming from the table right now.",a:"A macska pont most az asztaltól jön.",w:["A cica épp most távolodik el az asztaltól.","A macska most jön el az asztal mellől."]},
+{q:"The cat is coming out of the box right now.",a:"A macska pont most kijön a dobozból.",w:["A cica épp most hagyja el a dobozt.","A macska most lép ki a dobozból."]},
+{q:"The cat is jumping off the table right now.",a:"A macska pont most leugrik az asztalról.",w:["A cica épp most ugrándozik le az asztalról.","A macska most ugrik le az asztal tetejéről."]},
+{q:"The cat is walking through the tunnel right now.",a:"A macska pont most átsétál az alagúton.",w:["A cica épp most megy át az alagúton keresztül.","A macska most sétál az alagútban."]},
+{q:"The cat is walking across the road right now.",a:"A macska pont most átsétál az úttesten.",w:["A cica épp most megy át az út másik oldalára.","A macska most kel át az úton."]},
+{q:"The cat is walking along the river right now.",a:"A macska pont most sétál a folyó mentén.",w:["A cica épp most halad a folyó mellett végig.","A macska most sétál a folyó partján."]},
+{q:"The cat is walking towards the house right now.",a:"A macska pont most sétál a ház felé.",w:["A cica épp most tart a ház irányába.","A macska most megy a ház felé."]},
+{q:"The cat is walking past the shop right now.",a:"A macska pont most elhalad a bolt mellett.",w:["A cica épp most megy el a bolt mellett.","A macska most sétál el a bolt előtt."]},
+{q:"The cat is walking around the tree right now.",a:"A macska pont most megkerüli a fát.",w:["A cica épp most sétál körbe a fa körül.","A macska most kerüli meg a fát."]}
+];
+
+let questions = [];
+let wrongQuestions = [];
+let wrongQuestionKeys = new Set();
+let index = 0;
+let score = 0;
+let lastText = "";
+let lastLang = "en-US";
+let timer = null;
+let timeLeft = 18;
+let quizEnded = false;
+let waitingNextQuestion = false;
+
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+function mode() {
+    return document.querySelector('input[name="mode"]:checked').value;
+}
+
+function getQuestionKey(question) {
+    return `${question.q}|||${question.a}`;
+}
+
+function addWrongQuestion(question) {
+    const key = getQuestionKey(question);
+    if (!wrongQuestionKeys.has(key)) {
+        wrongQuestionKeys.add(key);
+        wrongQuestions.push(question);
+    }
+}
+
+function safeCancelSpeech() {
+    if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+    }
+}
+
+function speak(text, lang) {
+    if (!("speechSynthesis" in window)) return;
+
+    safeCancelSpeech();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang;
+    utterance.rate = parseFloat(document.getElementById("rate").value) || 0.85;
+
+    window.speechSynthesis.speak(utterance);
+    lastText = text;
+    lastLang = lang;
+}
+
+function repeatQuestion() {
+    if (!quizEnded && lastText) {
+        speak(lastText, lastLang);
+    }
+}
+
+function toggleDark() {
+    document.body.classList.toggle("dark");
+}
+
+function updateStats() {
+    document.getElementById("score").textContent = score;
+    document.getElementById("current").textContent = Math.min(index + 1, questions.length);
+    document.getElementById("total").textContent = questions.length;
+
+    const answered = index;
+    const pct = answered > 0 ? Math.round((score / answered) * 100) : 0;
+    document.getElementById("percent").textContent = pct;
+}
+
+function resetQuiz() {
+    clearInterval(timer);
+    safeCancelSpeech();
+
+    questions = [...originalQuestions];
+    shuffle(questions);
+
+    wrongQuestions = [];
+    wrongQuestionKeys = new Set();
+    index = 0;
+    score = 0;
+    timeLeft = 18;
+    quizEnded = false;
+    waitingNextQuestion = false;
+
+    document.getElementById("timer").textContent = timeLeft;
+    document.getElementById("wrongOnlyBtn").style.display = "none";
+    document.getElementById("result").textContent = "";
+
+    updateStats();
+    showQuestion();
+}
+
+function disableChoices() {
+    document.querySelectorAll(".choice").forEach(btn => {
+        btn.disabled = true;
+    });
+}
+
+function startTimer(correct) {
+    clearInterval(timer);
+    timeLeft = 18;
+    document.getElementById("timer").textContent = timeLeft;
+
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+
+            if (quizEnded || waitingNextQuestion) return;
+
+            disableChoices();
+            addWrongQuestion(questions[index]);
+
+            document.getElementById("result").textContent =
+                "⏰ Lejárt az idő! Helyes válasz: " + correct;
+
+            const lang = mode() === "en-to-hu" ? "hu-HU" : "en-US";
+            speak(correct, lang);
+
+            waitingNextQuestion = true;
+            index++;
+            updateStats();
+
+            setTimeout(() => {
+                waitingNextQuestion = false;
+                if (!quizEnded) showQuestion();
+            }, 4000);
+        }
+    }, 1000);
+}
+
+function getWrongOptionsForHuToEn(correct) {
+    const pool = originalQuestions
+        .map(item => item.q)
+        .filter(item => item !== correct);
+
+    shuffle(pool);
+    return pool.slice(0, 2);
+}
+
+function showQuestion() {
+    if (quizEnded) return;
+
+    if (index >= questions.length) {
+        clearInterval(timer);
+        quizEnded = true;
+
+        const pct = questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
+
+        document.getElementById("question").innerHTML = "<h2>Vége!</h2>";
+        document.getElementById("answers").innerHTML = "";
+        document.getElementById("result").textContent =
+            "Eredmény: " + score + "/" + questions.length + " (" + pct + "%)";
+        document.getElementById("percent").textContent = pct;
+        document.getElementById("timer").textContent = "0";
+
+        localStorage.setItem("lastResult", String(pct));
+
+        if (wrongQuestions.length > 0) {
+            document.getElementById("wrongOnlyBtn").style.display = "inline-block";
+        }
+        return;
+    }
+
+    const q = questions[index];
+    let questionText;
+    let correct;
+    let wrongs;
+    let lang;
+
+    if (mode() === "en-to-hu") {
+        questionText = q.q;
+        correct = q.a;
+        wrongs = [...q.w];
+        lang = "en-US";
+    } else {
+        questionText = q.a;
+        correct = q.q;
+        wrongs = getWrongOptionsForHuToEn(correct);
+        lang = "hu-HU";
+    }
+
+    document.getElementById("question").textContent = questionText;
+    document.getElementById("result").textContent = "";
+
+    speak(questionText, lang);
+
+    const options = [correct, ...wrongs];
+    shuffle(options);
+
+    const answersDiv = document.getElementById("answers");
+    answersDiv.innerHTML = "";
+
+    options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.className = "choice";
+        btn.type = "button";
+        btn.textContent = option;
+        btn.addEventListener("click", () => checkAnswer(btn, option, correct));
+        answersDiv.appendChild(btn);
+    });
+
+    updateStats();
+    startTimer(correct);
+}
+
+function highlightCorrectAnswer(correct) {
+    document.querySelectorAll(".choice").forEach(button => {
+        if (button.textContent === correct) {
+            button.classList.add("correct");
+        }
+    });
+}
+
+function checkAnswer(btn, selected, correct) {
+    if (quizEnded || waitingNextQuestion) return;
+
+    clearInterval(timer);
+    disableChoices();
+
+    const lang = mode() === "en-to-hu" ? "hu-HU" : "en-US";
+
+    if (selected === correct) {
+        score++;
+        btn.classList.add("correct");
+        document.getElementById("result").textContent = "✓ Helyes!";
+    } else {
+        btn.classList.add("wrong");
+        highlightCorrectAnswer(correct);
+        addWrongQuestion(questions[index]);
+        document.getElementById("result").textContent = "✗ Hibás! Helyes válasz: " + correct;
+    }
+
+    speak(correct, lang);
+
+    waitingNextQuestion = true;
+    index++;
+    updateStats();
+
+    setTimeout(() => {
+        waitingNextQuestion = false;
+        if (!quizEnded) showQuestion();
+    }, 3000);
+}
+
+function stopQuiz() {
+    if (quizEnded) return;
+
+    if (!confirm("Biztosan befejezed a tesztet?")) return;
+
+    clearInterval(timer);
+    safeCancelSpeech();
+    quizEnded = true;
+    waitingNextQuestion = false;
+
+    disableChoices();
+
+    const answered = index;
+    const pct = answered > 0 ? Math.round((score / answered) * 100) : 0;
+
+    document.getElementById("question").innerHTML = "<h2>A teszt megszakítva.</h2>";
+    document.getElementById("answers").innerHTML = "";
+    document.getElementById("result").textContent =
+        "Eredmény: " + score + "/" + answered + " (" + pct + "%)";
+    document.getElementById("percent").textContent = pct;
+    document.getElementById("timer").textContent = "0";
+
+    if (wrongQuestions.length > 0) {
+        document.getElementById("wrongOnlyBtn").style.display = "inline-block";
+    }
+}
+
+function retryWrong() {
+    clearInterval(timer);
+    safeCancelSpeech();
+
+    if (wrongQuestions.length === 0) return;
+
+    questions = [...wrongQuestions];
+    shuffle(questions);
+
+    wrongQuestions = [];
+    wrongQuestionKeys = new Set();
+    index = 0;
+    score = 0;
+    timeLeft = 18;
+    quizEnded = false;
+    waitingNextQuestion = false;
+
+    document.getElementById("timer").textContent = timeLeft;
+    document.getElementById("wrongOnlyBtn").style.display = "none";
+    document.getElementById("result").textContent = "";
+
+    updateStats();
+    showQuestion();
+}
+
+document.querySelectorAll('input[name="mode"]').forEach(radio => {
+    radio.addEventListener("change", resetQuiz);
+});
+
+resetQuiz();
+</script>
+</body>
+</html>
